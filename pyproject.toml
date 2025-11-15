@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "socratic-tutor-agent"
+version = "0.1.0"
+description = ""
+authors = ["jmt9454 <jmt9454@uncw.edu>"]
+package-mode = false
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.12,<3.13"
+
+fastapi = "^0.121.2"
+uvicorn = "^0.38.0"
+python-dotenv = "^1.2.1"
+langgraph = {extras = ["sqlite"], version = "^1.0.3"}
+langchain-openai = "^1.0.2"
+langgraph-checkpoint = "^3.0.1"
+langgraph-checkpoint-sqlite = "^3.0.0"
+
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.14.5"
+black = "^25.11.0"
+
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

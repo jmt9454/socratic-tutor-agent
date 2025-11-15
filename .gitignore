@@ -1,0 +1,12 @@
+# .gitignore
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Database
+*.db
+
+# Secrets
+.env
