@@ -4,8 +4,8 @@ from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.sqlite import SqliteSaver
 
 # Import our defined state and nodes
-from .state import AgentState
-from .nodes import router_node, planner_node, inquisitor_node, evaluator_node
+from state import AgentState
+from nodes import router_node, planner_node, inquisitor_node, evaluator_node
 
 
 def create_graph():

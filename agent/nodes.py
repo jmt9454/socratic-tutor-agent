@@ -2,7 +2,7 @@
 from pydantic import BaseModel, Field
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, AIMessage
-from .state import AgentState
+from state import AgentState
 
 # --- Model Initialization ---
 # It's common to initialize your model here so all nodes can share it.
@@ -17,7 +17,7 @@ class Evaluation(BaseModel):
         description="A list of strings. Each string represents learning outcomes in which the user has not demonstrated proficiency"
     )
     justification: str = Field(
-        description="A string representing the internal monologue justification of the Evaluator's decision to be passed to the Inquisitor."
+        description="A string representing the internal monologue justification of the Evaluator's decision to be passed to the Inquisitor. This message should be concise and refer to the user in the third person."
     )
 
 # --- Node Functions ---
@@ -43,8 +43,12 @@ def planner_node(state: AgentState):
     for topic in completed_topics:
         remaining_topics.remove(topic)
 
-    print(remaining_topics)
-    return {"remaining_topics": remaining_topics}
+    current_topic = remaining_topics[-1]
+    remaining_learning_outcomes = state.get("learning_outcomes")[current_topic]
+    print(f"Planning for topic: {current_topic}")
+    print(f"Remaining topics: {remaining_topics}")
+    print(f"Remaining learning outcomes: {remaining_learning_outcomes}")
+    return {"remaining_topics": remaining_topics, "remaining_learning_outcomes": remaining_learning_outcomes}
 
 
 def inquisitor_node(state: AgentState):
@@ -57,30 +61,40 @@ def inquisitor_node(state: AgentState):
     internal_monologue = state.get("internal_monologue")
     overall_goal = state.get("overall_goal")
     current_topic = state.get("remaining_topics")[-1]
-    learning_outcomes = state.get("learning_outcomes")[current_topic]
+    learning_outcomes = state.get("learning_outcomes")
+    remaining_outcomes = state.get("remaining_learning_outcomes")
+
+    print(current_topic)
+    print(remaining_outcomes)
 
     prompt = f"""
     You are "The Inquisitor," a master Socratic tutor. Your role is to guide a student to discover knowledge for themselves.
 
-    **Your Core Directives:**
-    1.  **NEVER give the direct answer.** Always respond with a question.
-    2.  **ASK ONE CONCISE QUESTION AT A TIME.** Your goal is a dialogue, not an interrogation.
-    3.  **USE YOUR CONTEXT.** Read the 'Internal Monologue' to understand the student's status and the evaluator's recent thoughts.
-    4.  **STAY FOCUSED.** Your *only* goal is to guide the student to the *first* unmet outcome on their list.
+    Your Core Directives:
 
-    ---
-    **Overall Mission:** Help the student learn: {overall_goal}
+    Always end your response with a question.
 
-    **Internal Monologue (Your Private Thoughts):**
-    {internal_monologue if internal_monologue else "No thoughts yet."}
+    ASK ONE CONCISE QUESTION AT A TIME. Your goal is a dialogue, not an interrogation.
 
-    **Current Topic:** {current_topic}
+    USE YOUR CONTEXT. Read the 'Internal Monologue' to understand the student's status and the evaluator's recent thoughts.
 
-    **Learning Plan (Your Goal is the FIRST item on this list):**
-    {learning_outcomes}
+    STAY FOCUSED. Your only goal is to guide the student to the first unmet outcome on their list.
 
-    **Your Task:**
-    Based on the student's history and your 'Internal Monologue', formulate **one single, concise, Socratic question** to guide them toward the *first* item on the Learning Plan.
+    PROVIDE A ENCOURAGING STATEMENT. Precede your question with one short, supportive, educational sentence that validates the student's last answer or reframes the topic before asking the next question.
+
+    USE CONTEXTUAL EXAMPLES AND CASES. If the 'Internal Monologue' contains a "HINT:" or the conversation shows a gap, also precede the question with some example or case for the student to consider before receiving the next question. Incorporate examples or analogies to help the student grasp the concept.
+
+    Overall Mission: Help the student learn: {overall_goal}
+
+    Internal Monologue (Your Private Thoughts): {internal_monologue if internal_monologue else "No thoughts yet."}
+
+    Current Topic: {current_topic}
+
+    All learning outcomes for this topic: {learning_outcomes[current_topic]}
+
+    Remaining Learning Plan (Your Goal is the FIRST item on this list): {remaining_outcomes}
+
+    Your Task: Based on the student's history and your 'Internal Monologue', formulate one single, concise, Socratic question and precede it with one short, guiding sentence to move them toward the first item on the Learning Plan.
     """
     model_messages = [SystemMessage(content=prompt)]
     model_messages.extend(messages)
@@ -101,7 +115,7 @@ def evaluator_node(state: AgentState):
     remaining_learning_outcomes = state.get("remaining_learning_outcomes",learning_outcomes)
     
     prompt = f"""
-    You are an expert Computer Science educator. Your goal is to evaluate if a student's answer conceptually fulfills the learning objectives. The student is in an introductory course and should be graded as such.
+    You are an expert Computer Science educator. Your goal is to evaluate if a student's answer conceptually fulfills the learning objectives. The student is in an introductory course and should be graded as such. Your responses are sent to the tutoring agent's Inquisitor node to help guide further questioning. Your responses should be concise and focused on helping the tutor guide the student.
 
     **Your Process:**
     1.  Read the **Remaining Rubric** and the **Entire Conversation History**.
@@ -109,7 +123,7 @@ def evaluator_node(state: AgentState):
 
     **You must follow these 3 cases for each item:**
 
-    **Case 1: The answer is correct (either academic or a good analogy).**
+    **Case 1: The answer is correct (either academic or a good analogy) or sufficient to move to the next item in the rubric in light of the overall goal.**
     * *Example:* "It's a pointer to memory" OR "It's like a labeled box."
     * **Action:** Mark this item as MET.
     * **Justification:** Briefly praise the student's correct answer.
@@ -117,13 +131,13 @@ def evaluator_node(state: AgentState):
     **Case 2: The answer is *way off*, *very confused*, or *conceptually wrong*.**
     * *Example:* "Is it like a function?" or "It's the letter 'x'."
     * **Action:** Do **NOT** mark this as MET.
-    * **Justification:** This is critical. Your justification **MUST** start with a "HINT:" tag. This is a secret note for the Socratic Inquisitor to give the student an example.
+    * **Justification:** This is critical. Explain the gap the student shows. Your justification **MUST** include a "HINT:" tag. This is a secret note for the Socratic Inquisitor to give the student an example.
     * *Example Justification:* "HINT: The student is very confused about the definition. They need a concrete example to get started."
 
     **Case 3: The answer is missing, or the student said "I don't know."**
     * **Action:** Do **NOT** mark this as MET.
-    * **Justification:** Simply state that the item is still unmet.
-    * *Example Justification:* "The student has not yet provided a definition for a variable."
+    * **Justification:** This is critical. Explain the gap the student shows. Your justification **MUST** include a "HINT:" tag. This is a secret note for the Socratic Inquisitor to give the student an example.
+    * *Example Justification:* "The student has not yet provided a definition for a variable. HINT: Give an example of the problem which variables solve or an analogy."
 
     **Your Task:**
     Return a list of all `met_items` that are now satisfied (only Case 1).
@@ -139,15 +153,17 @@ def evaluator_node(state: AgentState):
 
     model_messages = [SystemMessage(content=prompt)] + messages
     response = evaluator_model.invoke(model_messages)
-    remaining_learning_outcomes = response.remaining_learning_outcomes
+    new_remaining_learning_outcomes = response.remaining_learning_outcomes
     justification = response.justification
-    print(f"remaining: {remaining_learning_outcomes}")
+    print(f"remaining: {justification}")
+    print(f"remaining: {new_remaining_learning_outcomes}")
 
     return_payload = {
         "internal_monologue": [justification],
-        "remaining_learning_outcomes": remaining_learning_outcomes
+        "remaining_learning_outcomes": new_remaining_learning_outcomes
     }
-    if not remaining_learning_outcomes:
+
+    if not new_remaining_learning_outcomes:
         print(f"Topic Completed: {current_topic}")
         return_payload["completed_topics"] = [current_topic]
 
