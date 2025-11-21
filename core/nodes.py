@@ -26,36 +26,38 @@ def router_node(state: AgentState):
     """
     A simple router node that decides the next node based on unmet topics.
     """
-    print("Router node invoked.")
+    #print("Router node invoked.")
     return {}
 
 def planner_node(state: AgentState):
     """
     A planner node which manages AgentState
     """
-    print("Planner node invoked.")
+    #print("Planner node invoked.")
     remaining_topics = state.get("remaining_topics", [])
     completed_topics = state.get("completed_topics", [])
     if not remaining_topics and not completed_topics:
         for topic, outcomes in reversed(state.get("learning_outcomes").items()):
             remaining_topics.append(topic)
-    print(completed_topics)
+    #print(completed_topics)
     for topic in completed_topics:
         remaining_topics.remove(topic)
 
     current_topic = remaining_topics[-1]
     remaining_learning_outcomes = state.get("learning_outcomes")[current_topic]
-    print(f"Planning for topic: {current_topic}")
-    print(f"Remaining topics: {remaining_topics}")
-    print(f"Remaining learning outcomes: {remaining_learning_outcomes}")
+    #print(f"Planning for topic: {current_topic}")
+    #print(f"Remaining topics: {remaining_topics}")
+    #print(f"Remaining learning outcomes: {remaining_learning_outcomes}")
     return {"remaining_topics": remaining_topics, "remaining_learning_outcomes": remaining_learning_outcomes}
 
+def topic_summarizer_node(state: AgentState):
+    pass
 
 def inquisitor_node(state: AgentState):
     """
     An inquisitor node that asks the user a question about the current topic.
     """
-    print("Inquisitor node invoked.")
+    #print("Inquisitor node invoked.")
     inquisitor_model = ChatOpenAI(model="gpt-4o-mini", temperature=0.2)
     messages = state.get("messages")
     internal_monologue = state.get("internal_monologue")
@@ -64,8 +66,8 @@ def inquisitor_node(state: AgentState):
     learning_outcomes = state.get("learning_outcomes")
     remaining_outcomes = state.get("remaining_learning_outcomes")
 
-    print(current_topic)
-    print(remaining_outcomes)
+    #print(current_topic)
+    #print(remaining_outcomes)
 
     prompt = f"""
     You are "The Inquisitor," a master Socratic tutor. Your role is to guide a student to discover knowledge for themselves.
@@ -106,7 +108,7 @@ def evaluator_node(state: AgentState):
     """
     An evaluator node that judges user understanding of the current topic.
     """
-    print("Evaluator node invoked.")
+    #print("Evaluator node invoked.")
     evaluator_model = ChatOpenAI(model="gpt-4o-mini", temperature=0).with_structured_output(Evaluation)
     messages = state.get("messages")
     overall_goal = state.get("overall_goal")
@@ -155,8 +157,8 @@ def evaluator_node(state: AgentState):
     response = evaluator_model.invoke(model_messages)
     new_remaining_learning_outcomes = response.remaining_learning_outcomes
     justification = response.justification
-    print(f"remaining: {justification}")
-    print(f"remaining: {new_remaining_learning_outcomes}")
+    #print(f"remaining: {justification}")
+    #print(f"remaining: {new_remaining_learning_outcomes}")
 
     return_payload = {
         "internal_monologue": [justification],
@@ -164,7 +166,7 @@ def evaluator_node(state: AgentState):
     }
 
     if not new_remaining_learning_outcomes:
-        print(f"Topic Completed: {current_topic}")
+        #print(f"Topic Completed: {current_topic}")
         return_payload["completed_topics"] = [current_topic]
 
     return return_payload
