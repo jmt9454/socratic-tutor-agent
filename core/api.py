@@ -23,7 +23,7 @@ async def lifespan(app: FastAPI):
     This runs BEFORE the server starts receiving requests.
     It connects to the DB and compiles the graph.
     """
-    print("--- 🚀 Starting up: Connecting to Async Database ---")
+    print("--- Starting up: Connecting to Async Database ---")
     async with AsyncSqliteSaver.from_conn_string("threads.db") as checkpointer:
         # 1. Create the workflow
         workflow = create_graph()
