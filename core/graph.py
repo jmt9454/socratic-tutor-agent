@@ -49,13 +49,9 @@ def create_graph():
 
     # Checkpointer
     # The threads.db file will be created in the root directory
-    db_path = 'threads.db'
-    conn = sqlite3.connect(db_path, check_same_thread=False)
-
-    memory = SqliteSaver(conn)
 
     # Compile the graph
-    return graph_builder.compile(checkpointer=memory)
+    return graph_builder
 
 
 # Create the final, usable app object
