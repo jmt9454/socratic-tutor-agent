@@ -22,7 +22,7 @@ async def run_conversation():
 
     print(f"--- Starting Conversation (ID: {thread_id}) ---")
 
-    # --- Learning Outcomes (Kept the same) ---
+    # --- Learning Outcomes ---
     overall_goal = "Nested Loops"
     learning_outcomes = {
         "Variables & Concepts": [
