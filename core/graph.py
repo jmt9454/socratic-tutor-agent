@@ -1,4 +1,6 @@
-# agent/graph.py
+from dotenv import load_dotenv
+load_dotenv()
+
 import sqlite3
 from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.sqlite import SqliteSaver
@@ -56,3 +58,8 @@ def create_graph():
 
 # Create the final, usable app object
 app = create_graph()
+
+# Print the Mermaid code
+png = app.compile().get_graph().draw_mermaid_png()
+with open("graph.png", "wb") as f:
+    f.write(png)

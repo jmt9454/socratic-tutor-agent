@@ -9,7 +9,6 @@ from contextlib import asynccontextmanager
 # Import the Async Saver
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 load_dotenv()
-# Import your workflow builder (NOT the compiled app)
 from graph import create_graph
 
 # --- 1. Global State ---
@@ -38,28 +37,32 @@ async def lifespan(app: FastAPI):
     print("--- Shutting down: Closing Database ---")
 
 # --- 3. Static Data (Curriculum) ---
-OVERALL_GOAL = "Nested Loops"
-LEARNING_OUTCOMES =     learning_outcomes = {
-        "Variables & Concepts": [
-            "1. Understand what a **'variable'** is and how it acts as a **label or placeholder** for a piece of data stored in memory.",
-            "2. Grasp ***why*** programmers use variables (e.g., to make code reusable, easier to read, and manage complex values).",
-            "3. Understand the concept of **'assignment'** as the action of storing a value into a variable.",
-            "4. Recognize that **naming conventions** are essential for writing professional and clean code."
+overall_goal = "Introductory Asymptotic Notation"
+learning_outcomes = {
+       "1. The Measurement Problem (Why Stopwatches Fail)": [
+            "1. Understand that measuring code execution with physical time (seconds/milliseconds) is unreliable due to differences in computer hardware and background processes.",
+            "2. Grasp the concept of **'input size'** (usually denoted as the variable $n$) and recognize that true efficiency is measured by observing how performance changes as $n$ grows.",
+            "3. Shift the analytical perspective from 'how fast does this run?' to **'how many operations does this code take?'**."
         ],
-        "Core Data Types": [
-            "1. Understand the fundamental concept of a **'data type'** and its importance in defining what kind of data a variable holds (numbers, text, etc.).",
-            "2. Be able to describe the four core types based on their content: **Integers** (whole numbers), **Floats** (numbers with decimal parts), **Strings** (text/characters), and **Booleans** (True/False states).",
-            "3. Understand the theoretical process of **'type casting'** or **conversion**—the idea of changing a value's data type to use it in a different context (e.g., treating a number as text, or vice-versa)."
+        "2. Counting Operations & Rate of Growth": [
+            "1. Be able to identify basic, single-step operations in code (e.g., variable assignment, basic arithmetic, true/false comparisons).",
+            "2. Understand the concept of **'rate of growth'** as the direct relationship between the input size ($n$) and the total number of operations performed.",
+            "3. Recognize that as data sets become massive (scaling toward infinity), the rate of growth becomes the only metric that truly matters."
         ],
-        "Iteration & Loops": [
-            "1. Grasp the core idea of **'iteration'** (looping) and understand *why* it is the primary method for **automation** and performing repetitive tasks efficiently.",
-            "2. Define an **'iterable'** as any structure or collection of data that can be processed one item at a time (e.g., a list of items, a sequence of characters in a word).",
-            "3. Understand the concept of a **'loop variable'** as the temporary name given to the current item being processed during an iteration."
+        "3. Best, Worst, and Average Cases": [
+            "1. Understand that an algorithm's performance can change based on the *actual data* it receives (e.g., searching for a name and finding it on the first try vs. the very last try).",
+            "2. Differentiate conceptually between the Best Case (lucky scenario), Average Case (typical scenario), and Worst Case (unlucky scenario).",
+            "3. Grasp ***why*** programmers primarily focus on the **Worst Case**: to guarantee the algorithm will never perform worse than a specific, predictable bound."
         ],
-        "Nested Structures": [
-            "1. Understand the theoretical concept of a **'nested loop'**—simply a loop contained entirely within the body of another loop.",
-            "2. Understand the relationship between the loops: the **'inner' loop completes all its cycles** for every single cycle of the **'outer' loop**.",
-            "3. Recognize ***why*** nested loops are necessary for working with **two-dimensional (2D) data** (data organized in rows and columns, like a grid or matrix)."
+        "4. Big O Notation (The Core Rules)": [
+            "1. Define **'Big O Notation'** as the standardized mathematical vocabulary used by engineers to describe an algorithm's worst-case time or space complexity.",
+            "2. Understand the rule of **'dropping constants'**: recognize that $O(2n)$ or $O(n + 5)$ is simplified to $O(n)$ because static numbers don't significantly impact the trajectory of massive growth.",
+            "3. Understand the rule of **'dropping non-dominant terms'**: recognize that in an equation like $O(n^2 + n)$, the $n^2$ dominates the growth rate as $n$ scales, simplifying the final notation to $O(n^2)$."
+        ],
+        "5. The Foundational Complexity Classes": [
+            "1. Identify **Constant Time $O(1)$**: operations that take the exact same amount of time regardless of how large the data gets (e.g., looking up an item in a list by its exact index position).",
+            "2. Identify **Linear Time $O(n)$**: operations where the time required scales 1:1 with the data (e.g., using a single loop to check every item in a list one by one).",
+            "3. Identify **Quadratic Time $O(n^2)$**: operations where time scales exponentially with data, typically recognized by nested structures (e.g., an inner loop running entirely for every step of an outer loop)."
         ]
     }
 
@@ -74,7 +77,6 @@ class ChatOutput(BaseModel):
 # --- 5. Setup FastAPI with Lifespan ---
 app = FastAPI(
     title="Tutor Agent API",
-    version="1.5.0",
     lifespan=lifespan # <--- Link the lifespan manager here
 )
 
@@ -88,8 +90,8 @@ async def chat_endpoint(payload: ChatInput):
     
     graph_input = {
         "messages": [HumanMessage(content=payload.message)],
-        "overall_goal": OVERALL_GOAL,
-        "learning_outcomes": LEARNING_OUTCOMES
+        "overall_goal": overall_goal,
+        "learning_outcomes": learning_outcomes
     }
 
     async def generate():
