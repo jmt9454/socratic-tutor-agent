@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 from langchain_openai import ChatOpenAI
-from langchain_core.messages import SystemMessage, AIMessage
+from langchain_core.messages import SystemMessage, AIMessage, HumanMessage
 from models import Evaluation
 from state import AgentState
 
@@ -102,6 +102,12 @@ def evaluator_node(state):
     if not isinstance(messages, list):
         messages = [messages]
 
+    last_human = next((m for m in reversed(messages) if isinstance(m, HumanMessage)), None)
+    if last_human is None:
+        # Nothing from the student to evaluate (e.g., fresh or resumed thread); leave state untouched.
+        print("Evaluator Node: No student response found; skipping evaluation.")
+        return {}
+
     overall_goal = state.get("overall_goal", "General concepts")
     
     remaining_topics = state.get("remaining_topics", [])
@@ -122,7 +128,7 @@ def evaluator_node(state):
     4. **Strict Scope Isolation:** Look ONLY at the FIRST outcome. If the outcome is just about understanding *what* something is, and they demonstrate that, pass them. Do not hold them back because they didn't explain *how to defend against it* (defense is likely a later outcome).
 
     **Your Task:**
-    Analyze the student's latest response. Focus ONLY on the FIRST item in the Remaining Learning Outcomes list. Decide how the Socratic Guide should respond based on two scenarios:
+    Evaluate ONLY the student's latest answer, quoted below. The conversation history is provided for context only. IMPORTANT: assistant messages in the history are the TUTOR speaking, NOT the student — never credit the student with anything the tutor said. Focus ONLY on the FIRST item in the Remaining Learning Outcomes list. Decide how the Socratic Guide should respond based on two scenarios:
 
     **Scenario A: The Gist is Grasped (Move Forward) - DEFAULT TO THIS IF IN DOUBT**
     - Trigger: The student's answer shows they understand the core directional idea of that FIRST outcome, even if brief or unsure.
@@ -139,7 +145,10 @@ def evaluator_node(state):
     
     **Remaining Learning Outcomes (Your immediate target is the FIRST one):**
     {remaining_learning_outcomes}
-    
+
+    **THE STUDENT'S LATEST ANSWER (the only text you are evaluating):**
+    "{last_human.content}"
+
     Output your `decision` (ADVANCE or REMEDIATE) and your strategic advice in the `justification` (which becomes the internal monologue).
     """
 
