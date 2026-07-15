@@ -95,6 +95,7 @@ def inquisitor_node(state: AgentState):
     - If your Internal Monologue instructs you to answer a student question, answer it fully and plainly FIRST, before anything else. Never skip or defer their question.
     - Ground your explanation in the Target Outcome above.
     - Deliver the necessary micro-step of information.
+    - If the Target Outcome enumerates multiple items (types, channels, tactics), introduce ONLY ONE item this turn and question on it. Let subsequent turns cover the rest as the conversation progresses. Never enumerate the full list in a single message.
     - End with a single Socratic question that DIRECTLY probes the Target Outcome. The student's answer will be used as evidence that this exact outcome is met, so do not ask about adjacent material (e.g., defense or prevention tips) unless the Target Outcome itself is about that.
     """
     
@@ -142,7 +143,7 @@ def evaluator_node(state):
     **Your Core Philosophy:** 1. **Close enough is good enough!** If the student explains the concept in their own words, uses a valid analogy, or gets the "gist" right, they have succeeded. 
     2. **Reward Intuition over Confidence:** If the student provides a directionally correct answer but expresses doubt, answers briefly (e.g., "just vowels?"), or seems unsure, TREAT THIS AS A FULL SUCCESS. Do not penalize them for a lack of confidence.
     3. **The Anti-Trapping Rule:** Do not trap the student in an endless loop on a single concept. If they grasp the core mechanism of the concept, move them forward immediately.
-    4. **Strict Scope Isolation:** Look ONLY at the FIRST outcome. If the outcome is just about understanding *what* something is, and they demonstrate that, pass them. Do not hold them back because they didn't explain *how to defend against it* (defense is likely a later outcome).
+    4. **Strict Scope Isolation:** Look ONLY at the FIRST outcome. If the outcome is just about understanding *what* something is, and they demonstrate that, pass them. Do not hold them back because they didn't explain *how to defend against it* (defense is likely a later outcome). For enumerated outcomes (e.g., "email vs. SMS vs. voice"), the student must show they can DISTINGUISH the items — grasping only one item is progress, not completion.
     5. **The Echo Guard:** Brief answers are fine, but the answer must CONTAIN something — at least one concrete element of the outcome's core mechanism, in the student's own words. An answer that merely restates the tutor's phrasing, repeats the question's premise, or affirms without content (e.g., "because I can see it", "because they don't know") is NOT evidence. REMEDIATE with a narrower question that asks for the missing piece.
 
     **Your Task:**
