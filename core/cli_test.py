@@ -1,3 +1,4 @@
+import argparse
 import asyncio
 import uuid
 from langchain_core.messages import HumanMessage
@@ -9,14 +10,17 @@ load_dotenv()
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 from graph import create_graph
 
-async def run_conversation():
+async def run_conversation(thread_id: str | None = None):
     """
     Example of running a stateful conversation asynchronously.
+    A fresh thread_id is generated unless one is supplied (to resume a prior thread).
     """
-    thread_id = 'bd2a82a0-6d1a-4c5d-a0b8-24ad6a7b020ae'
+    resuming = thread_id is not None
+    if not resuming:
+        thread_id = str(uuid.uuid4())
     config = {"configurable": {"thread_id": thread_id}}
 
-    print(f"--- Starting Conversation (ID: {thread_id}) ---")
+    print(f"--- {'Resuming' if resuming else 'Starting'} Conversation (ID: {thread_id}) ---")
 
     # --- Learning Outcomes ---
     overall_goal = "Introductory Asymptotic Notation"
@@ -94,5 +98,13 @@ async def run_conversation():
                 break
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="CLI test for the tutor graph.")
+    parser.add_argument(
+        "--thread-id",
+        default=None,
+        help="Resume an existing thread by ID (default: generate a fresh one).",
+    )
+    args = parser.parse_args()
+
     # --- 3. RUN ASYNC LOOP ---
-    asyncio.run(run_conversation())
+    asyncio.run(run_conversation(thread_id=args.thread_id))
