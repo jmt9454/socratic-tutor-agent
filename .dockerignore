@@ -1,0 +1,12 @@
+.env
+.env.*
+!.env.example
+threads.db
+threads.db-shm
+threads.db-wal
+__pycache__/
+*.pyc
+.git/
+.venv/
+graph.png
+docker-compose*.yml

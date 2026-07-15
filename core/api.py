@@ -1,5 +1,8 @@
+import os
+import secrets
+
 import uvicorn
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Header, Depends
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from langchain_core.messages import HumanMessage
@@ -10,6 +13,23 @@ from contextlib import asynccontextmanager
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 load_dotenv()
 from graph import create_graph
+
+# --- 0. Runtime Config (env-driven for Docker) ---
+# Where the checkpointer database lives. In Docker this points at a volume
+# (e.g., /data/threads.db) so student progress survives container restarts.
+THREADS_DB_PATH = os.getenv("THREADS_DB_PATH", "threads.db")
+
+# Optional shared secret. If TUTOR_API_KEY is set (non-empty), every /chat
+# request must carry a matching X-API-Key header. If unset, auth is disabled
+# (network isolation is then the only access control).
+TUTOR_API_KEY = os.getenv("TUTOR_API_KEY", "")
+
+
+def verify_api_key(x_api_key: str | None = Header(default=None)):
+    if not TUTOR_API_KEY:
+        return  # auth disabled by config
+    if not x_api_key or not secrets.compare_digest(x_api_key, TUTOR_API_KEY):
+        raise HTTPException(status_code=401, detail="Invalid or missing API key")
 
 # --- 1. Global State ---
 # This will hold our compiled graph once the server starts
@@ -22,8 +42,9 @@ async def lifespan(app: FastAPI):
     This runs BEFORE the server starts receiving requests.
     It connects to the DB and compiles the graph.
     """
-    print("--- Starting up: Connecting to Async Database ---")
-    async with AsyncSqliteSaver.from_conn_string("threads.db") as checkpointer:
+    print(f"--- Starting up: Connecting to Async Database ({THREADS_DB_PATH}) ---")
+    print(f"--- API key auth: {'ENABLED' if TUTOR_API_KEY else 'DISABLED (no TUTOR_API_KEY set)'} ---")
+    async with AsyncSqliteSaver.from_conn_string(THREADS_DB_PATH) as checkpointer:
         # 1. Create the workflow
         workflow = create_graph()
         
@@ -86,7 +107,7 @@ async def health():
     return {"status": "ok", "graph_ready": app_graph is not None}
 
 
-@app.post("/chat", operation_id="chat_with_tutor")
+@app.post("/chat", operation_id="chat_with_tutor", dependencies=[Depends(verify_api_key)])
 async def chat_endpoint(payload: ChatInput):
     # Ensure the graph is loaded
     if app_graph is None:

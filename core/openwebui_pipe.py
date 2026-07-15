@@ -24,11 +24,15 @@ from pydantic import BaseModel, Field
 class Pipe:
     class Valves(BaseModel):
         API_BASE_URL: str = Field(
-            # host.docker.internal reaches the host machine from inside
-            # OpenWebUI's Docker container; use http://localhost:8000 if
-            # OpenWebUI runs directly on the host.
-            default="http://host.docker.internal:8000",
+            # Docker-network service name when both containers share a compose
+            # network. For local dev outside Docker use http://localhost:8000;
+            # for OpenWebUI-in-Docker -> host API use http://host.docker.internal:8000.
+            default="http://lg-tutor-api:8000",
             description="Base URL of the tutor FastAPI server.",
+        )
+        API_KEY: str = Field(
+            default="",
+            description="Shared secret sent as X-API-Key. Must match the backend's TUTOR_API_KEY. Leave empty if the backend has auth disabled.",
         )
         REQUEST_TIMEOUT: int = Field(
             default=120,
@@ -88,10 +92,15 @@ class Pipe:
             "thread_id": self._thread_id(body, __metadata__, __user__),
         }
 
+        headers = {}
+        if self.valves.API_KEY:
+            headers["X-API-Key"] = self.valves.API_KEY
+
         try:
             response = requests.post(
                 f"{self.valves.API_BASE_URL.rstrip('/')}/chat",
                 json=payload,
+                headers=headers,
                 stream=True,
                 timeout=self.valves.REQUEST_TIMEOUT,
             )

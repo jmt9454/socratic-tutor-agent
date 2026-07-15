@@ -1,0 +1,55 @@
+# LG Tutor service — designed to join the SAME compose stack as OpenWebUI.
+#
+# OPTION 1 (recommended): merge the `lg-tutor-api` service, the `tutor-net`
+# network, and the `tutor_data` volume into your EXISTING OpenWebUI
+# docker-compose.yml, then add `tutor-net` to the open-webui service's
+# `networks:` list (shown commented below).
+#
+# OPTION 2: keep this file separate and mark `tutor-net` as external:
+#   1. docker network create tutor-net
+#   2. In BOTH compose files declare:  networks: { tutor-net: { external: true } }
+#   3. Add tutor-net to the open-webui service's networks.
+#
+# SECURITY MODEL:
+#   - lg-tutor-api publishes NO ports. It is unreachable from the internet,
+#     from the droplet's public IP, and even from the droplet's localhost.
+#     Only containers on tutor-net can reach it at http://lg-tutor-api:8000.
+#   - Optional second layer: set TUTOR_API_KEY in .env and mirror it in the
+#     pipe's API_KEY valve. Unset = auth disabled, network-only isolation.
+
+services:
+  lg-tutor-api:
+    build: .
+    container_name: lg-tutor-api
+    restart: unless-stopped
+    env_file:
+      - .env                  # OPENAI_API_KEY, optional TUTOR_API_KEY
+    environment:
+      - THREADS_DB_PATH=/data/threads.db
+    volumes:
+      - tutor_data:/data      # student progress survives restarts/rebuilds
+    networks:
+      - tutor-net
+    # NOTE: intentionally NO `ports:` section. Do not add one.
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=5)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  # --- Merge reference: your existing OpenWebUI service needs only this ---
+  # open-webui:
+  #   ...existing config unchanged...
+  #   networks:
+  #     - default        # keep whatever it already uses
+  #     - tutor-net      # ADD this line
+
+networks:
+  tutor-net:
+    driver: bridge
+    # NOT `internal: true` — the API needs outbound HTTPS to reach OpenAI.
+    # Inbound isolation comes from publishing no ports, not from the network.
+
+volumes:
+  tutor_data:
