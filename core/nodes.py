@@ -40,7 +40,10 @@ def topic_summarizer_node(state: AgentState):
 def inquisitor_node(state: AgentState):
     inquisitor_model = ChatOpenAI(model="gpt-4o-mini", temperature=0.2)
     messages = state.get("messages", [])
-    internal_monologue = state.get("internal_monologue", "No specific thoughts right now.")
+    # internal_monologue accumulates every evaluator justification; only the
+    # LATEST entry is the current strategy — older ones are stale directives.
+    monologue_history = state.get("internal_monologue") or []
+    internal_monologue = monologue_history[-1] if monologue_history else None
     overall_goal = state.get("overall_goal", "the current subject")
     learning_outcomes = state.get("learning_outcomes", {})
     remaining_outcomes = state.get("remaining_learning_outcomes", [])
