@@ -4,7 +4,7 @@ from langchain_core.messages import SystemMessage, AIMessage, HumanMessage
 from models import Evaluation
 from state import AgentState
 
-model = ChatOpenAI(model="gpt-4o-mini")
+model = ChatOpenAI(model="gpt-4.1-mini")
 
 def router_node(state: AgentState):
     """
@@ -44,7 +44,7 @@ def topic_summarizer_node(state: AgentState):
     pass
 
 def inquisitor_node(state: AgentState):
-    inquisitor_model = ChatOpenAI(model="gpt-4o-mini", temperature=0.2)
+    inquisitor_model = ChatOpenAI(model="gpt-4.1-mini", temperature=0.2)
     messages = state.get("messages", [])
     # internal_monologue accumulates every evaluator justification; only the
     # LATEST entry is the current strategy — older ones are stale directives.
@@ -71,9 +71,11 @@ def inquisitor_node(state: AgentState):
     Your Core Directives:
     1. VALIDATE & CORRECT: Always begin by addressing the student's last input. If they are correct, provide a brief encouraging statement. If they are incorrect or partially right, gently correct the false premise before introducing new information.
     2. TEACH IN MICRO-STEPS: Do not just quiz the student. First, introduce a small, digestible piece of the current objective. Use brief, vivid analogies or concrete scenarios to anchor abstract concepts.
-    3. THE SOCRATIC HOOK: Always end your response with exactly ONE concise question. This question must force the student to apply the micro-step you just taught, deduce the next logical piece of the puzzle, or explain the "why."
+    3. THE SOCRATIC HOOK: Always end your response with exactly ONE concise question. This question must force the student to apply what you just taught, deduce the next logical piece of the puzzle, or explain the "why."
     4. MANAGE TANGENTS: If the student strays, briefly acknowledge their point, but seamlessly pivot the conversation directly back to the active learning goal. Do not follow them down rabbit holes.
     5. NEVER LECTURE: Never give away the full answer or explain the entire concept at once. If the student struggles, break the concept down into an even smaller piece and ask a simpler guiding question.
+    6. SPEAK NATURALLY: These directives are stage directions, not vocabulary. Never narrate, reference, or label them in your replies — no meta-commentary like "since this is our first turn there's nothing to validate," and no internal jargon like "micro-step" or "target outcome" as headings or phrases. Write only what a warm, natural human tutor would actually say aloud.
+    7. URL SAFETY: Write every example URL or domain name in backticks as inline code (e.g., `paypa1.com`), NEVER as a markdown link. Example domains must never render as clickable — some lookalike domains are registered by real attackers.
     """
 
     anchor_prompt = f"""
@@ -83,7 +85,7 @@ def inquisitor_node(state: AgentState):
     {current_outcomes}
 
     Your Internal Monologue (Strategic Direction):
-    {internal_monologue if internal_monologue else "The conversation is just now starting. Greet the student and introduce the first micro-step of the topic."}
+    {internal_monologue if internal_monologue else "This is the very first message of the lesson — the student has not said anything yet. Skip any validation or correction entirely; do not mention the absence of prior messages. Simply greet the student warmly and begin teaching the first small piece of the topic."}
 
     Remaining Learning Plan:
     {remaining_outcomes if remaining_outcomes else "Assess overall understanding and summarize."}
@@ -111,7 +113,7 @@ def evaluator_node(state):
     An evaluator node that judges conversational understanding and dictates the tutor's next move.
     """
     print("Evaluator node invoked.")
-    evaluator_model = ChatOpenAI(model="gpt-4o-mini", temperature=0.1).with_structured_output(Evaluation)
+    evaluator_model = ChatOpenAI(model="gpt-4.1-mini", temperature=0.1).with_structured_output(Evaluation)
     
     messages = state.get("messages", [])
     if not isinstance(messages, list):
