@@ -1,3 +1,4 @@
+import argparse
 import asyncio
 import uuid
 from langchain_core.messages import HumanMessage
@@ -9,42 +10,45 @@ load_dotenv()
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 from graph import create_graph
 
-async def run_conversation():
+async def run_conversation(thread_id: str | None = None):
     """
     Example of running a stateful conversation asynchronously.
+    A fresh thread_id is generated unless one is supplied (to resume a prior thread).
     """
-    thread_id = 'bd2a82a0-6d1a-4c5d-a0b8-24ad6a7b020ab'
+    resuming = thread_id is not None
+    if not resuming:
+        thread_id = str(uuid.uuid4())
     config = {"configurable": {"thread_id": thread_id}}
 
-    print(f"--- Starting Conversation (ID: {thread_id}) ---")
+    print(f"--- {'Resuming' if resuming else 'Starting'} Conversation (ID: {thread_id}) ---")
 
     # --- Learning Outcomes ---
-    overall_goal = "Introductory Asymptotic Notation"
+    overall_goal = "Recognizing Phishing and Deceptive Email Tactics"
     learning_outcomes = {
-       "1. The Measurement Problem (Why Stopwatches Fail)": [
-            "1. Understand that measuring code execution with physical time (seconds/milliseconds) is unreliable due to differences in computer hardware and background processes.",
-            "2. Grasp the concept of **'input size'** (usually denoted as the variable $n$) and recognize that true efficiency is measured by observing how performance changes as $n$ grows.",
-            "3. Shift the analytical perspective from 'how fast does this run?' to **'how many operations does this code take?'**."
+        "1. Deceptive Links and URL Manipulation": [
+            "1. Understand the mechanics of **Homograph attacks** and how attackers use visually similar characters from different alphabets to spoof legitimate URLs.",
+            "2. Identify the concept of **Typosquatting** and how attackers exploit common domain misspellings to trap inattentive users.",
+            "3. Recognize the security purpose of hovering over hyperlinks to reveal the true destination, guarding against mismatches between display text and actual web addresses.",
+            "4. Comprehend how **URL shorteners** can be weaponized to obscure malicious destinations from victims.",
+            "5. Define an **Open Redirect vulnerability** and explain how attackers use trusted domains to silently forward users to malicious sites."
         ],
-        "2. Counting Operations & Rate of Growth": [
-            "1. Be able to identify basic, single-step operations in code (e.g., variable assignment, basic arithmetic, true/false comparisons).",
-            "2. Understand the concept of **'rate of growth'** as the direct relationship between the input size ($n$) and the total number of operations performed.",
-            "3. Recognize that as data sets become massive (scaling toward infinity), the rate of growth becomes the only metric that truly matters."
+        "2. Social Engineering and Phishing Variations": [
+            "1. Differentiate between mass phishing and **Spear Phishing**, which utilizes targeted intelligence against specific individuals or organizations.",
+            "2. Identify **Whaling** as a specialized phishing campaign aimed strictly at high-ranking executives or privileged users.",
+            "3. Understand **Smishing** as the application of social engineering tactics through Short Message Service (SMS) channels.",
+            "4. Grasp the concept of **Pretexting**, where attackers fabricate elaborate scenarios (e.g., posing as IT support) to manipulate victims into divulging credentials."
         ],
-        "3. Best, Worst, and Average Cases": [
-            "1. Understand that an algorithm's performance can change based on the *actual data* it receives (e.g., searching for a name and finding it on the first try vs. the very last try).",
-            "2. Differentiate conceptually between the Best Case (lucky scenario), Average Case (typical scenario), and Worst Case (unlucky scenario).",
-            "3. Grasp ***why*** programmers primarily focus on the **Worst Case**: to guarantee the algorithm will never perform worse than a specific, predictable bound."
+        "3. Domain and Email Authentication Standards": [
+            "1. Understand the role of **SPF (Sender Policy Framework)** DNS records in specifying which mail servers are explicitly authorized to send emails on behalf of a domain.",
+            "2. Comprehend how **DKIM (DomainKeys Identified Mail)** mitigates spoofing by attaching a cryptographic digital signature to the email header.",
+            "3. Define the purpose of **DMARC (Domain-based Message Authentication, Reporting, and Conformance)** in instructing receiving servers on how to handle messages that fail SPF or DKIM checks."
         ],
-        "4. Big O Notation (The Core Rules)": [
-            "1. Define **'Big O Notation'** as the standardized mathematical vocabulary used by engineers to describe an algorithm's worst-case time or space complexity.",
-            "2. Understand the rule of **'dropping constants'**: recognize that $O(2n)$ or $O(n + 5)$ is simplified to $O(n)$ because static numbers don't significantly impact the trajectory of massive growth.",
-            "3. Understand the rule of **'dropping non-dominant terms'**: recognize that in an equation like $O(n^2 + n)$, the $n^2$ dominates the growth rate as $n$ scales, simplifying the final notation to $O(n^2)$."
+        "4. Anatomy of an Email and Header Spoofing": [
+            "1. Recognize the **'From' address** field as a primary target for manipulation because it is easily spoofed to mimic trusted sources.",
+            "2. Understand the technical function of the **'Return-Path'** header, which indicates where automated bounce messages should be routed, distinct from the visible sender."
         ],
-        "5. The Foundational Complexity Classes": [
-            "1. Identify **Constant Time $O(1)$**: operations that take the exact same amount of time regardless of how large the data gets (e.g., looking up an item in a list by its exact index position).",
-            "2. Identify **Linear Time $O(n)$**: operations where the time required scales 1:1 with the data (e.g., using a single loop to check every item in a list one by one).",
-            "3. Identify **Quadratic Time $O(n^2)$**: operations where time scales exponentially with data, typically recognized by nested structures (e.g., an inner loop running entirely for every step of an outer loop)."
+        "5. Malicious Payloads and Attachments": [
+            "1. Identify common technical indicators of malicious email attachments, particularly the use of **double extensions** (e.g., 'invoice.pdf.exe') designed to trick users into executing malware."
         ]
     }
     
@@ -94,5 +98,13 @@ async def run_conversation():
                 break
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="CLI test for the tutor graph.")
+    parser.add_argument(
+        "--thread-id",
+        default=None,
+        help="Resume an existing thread by ID (default: generate a fresh one).",
+    )
+    args = parser.parse_args()
+
     # --- 3. RUN ASYNC LOOP ---
-    asyncio.run(run_conversation())
+    asyncio.run(run_conversation(thread_id=args.thread_id))
