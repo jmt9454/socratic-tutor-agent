@@ -92,6 +92,7 @@ def inquisitor_node(state: AgentState):
     {target_outcome if target_outcome else "No specific outcome remains; assess overall understanding and summarize."}
 
     Task: Formulate your response to execute the exact strategy described in your Internal Monologue.
+    - If your Internal Monologue instructs you to answer a student question, answer it fully and plainly FIRST, before anything else. Never skip or defer their question.
     - Ground your explanation in the Target Outcome above.
     - Deliver the necessary micro-step of information.
     - End with a single Socratic question that DIRECTLY probes the Target Outcome. The student's answer will be used as evidence that this exact outcome is met, so do not ask about adjacent material (e.g., defense or prevention tips) unless the Target Outcome itself is about that.
@@ -152,9 +153,12 @@ def evaluator_node(state):
     - Monologue: Briefly note what they got right. Instruct the Socratic Guide to validate them, celebrate the win, and smoothly introduce the NEXT concept on the list.
 
     **Scenario B: Fundamental Misunderstanding (Pivot & Re-engage)**
-    - Trigger: The student is completely lost, confidently incorrect about the core mechanism, or entirely dodged the concept.
+    - Trigger: The student is completely lost, confidently incorrect about the core mechanism, entirely dodged the concept, OR asked how/why the current concept works. A question about the mechanism is direct evidence they do NOT yet grasp it — prefer REMEDIATE and make answering their question the core of your monologue.
     - Decision: Output `REMEDIATE`.
     - Monologue: Identify the specific point of friction. Instruct the Socratic Guide to validate the effort, and suggest a specific, simpler analogy or narrower question.
+
+    **Question Capture (applies to BOTH scenarios):**
+    If the student's answer contains ANY explicit question or request for clarification, you MUST restate it concisely in `student_question` — even when you ADVANCE. A student's question must never be silently dropped.
 
     **Overall Goal:** {overall_goal}
     **Current Topic:** {current_topic}
@@ -170,7 +174,7 @@ def evaluator_node(state):
 
     NOTE: If the tutor's question drifted away from the FIRST outcome (e.g., asked about prevention when the outcome is a definition), judge the student's answer against the FIRST outcome itself, not against the drifted question. A reasonable answer to the question actually asked is NOT automatic evidence the outcome is met.
 
-    Output your `decision` (ADVANCE or REMEDIATE) and your strategic advice in the `justification` (which becomes the internal monologue).
+    Output your `decision` (ADVANCE or REMEDIATE), your strategic advice in the `justification` (which becomes the internal monologue), and any `student_question` (empty string if none).
     """
 
     model_messages = [SystemMessage(content=prompt)]
@@ -186,7 +190,18 @@ def evaluator_node(state):
 
     justification = response.justification
 
+    # Guarantee a captured student question is answered before anything else,
+    # regardless of ADVANCE/REMEDIATE. Python owns this, not the model's prose.
+    student_question = (response.student_question or "").strip()
+    if student_question:
+        justification = (
+            f'FIRST: directly and plainly answer the student\'s question: '
+            f'"{student_question}". THEN: {justification}'
+        )
+
     print(f"Evaluator Node: Decision - {response.decision}")
+    if student_question:
+        print(f"Evaluator Node: Student Question - {student_question}")
     print(f"Evaluator Node: Justification - {justification}")
     print(f"Evaluator Node: Remaining Learning Outcomes - {new_remaining_learning_outcomes}")
 
