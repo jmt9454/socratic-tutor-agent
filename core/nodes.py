@@ -15,20 +15,26 @@ def router_node(state: AgentState):
 
 def planner_node(state: AgentState):
     """
-    A planner node which manages AgentState
+    A planner node which manages AgentState.
+    Rebuilds remaining_topics from scratch each call (curriculum minus completed)
+    rather than mutating state in place. Curriculum order is preserved: topics are
+    stored reversed so the current topic is always remaining_topics[-1].
     """
     #print("Planner node invoked.")
-    remaining_topics = state.get("remaining_topics", [])
-    completed_topics = state.get("completed_topics", [])
-    if not remaining_topics and not completed_topics:
-        for topic, outcomes in reversed(state.get("learning_outcomes").items()):
-            remaining_topics.append(topic)
-    #print(completed_topics)
-    for topic in completed_topics:
-        remaining_topics.remove(topic)
+    learning_outcomes = state.get("learning_outcomes", {})
+    completed_topics = state.get("completed_topics") or []
+
+    remaining_topics = [
+        topic for topic in reversed(list(learning_outcomes.keys()))
+        if topic not in completed_topics
+    ]
+
+    if not remaining_topics:
+        # Curriculum finished; after_planner_node routes to END.
+        return {"remaining_topics": [], "remaining_learning_outcomes": []}
 
     current_topic = remaining_topics[-1]
-    remaining_learning_outcomes = state.get("learning_outcomes")[current_topic]
+    remaining_learning_outcomes = list(learning_outcomes[current_topic])
     #print(f"Planning for topic: {current_topic}")
     #print(f"Remaining topics: {remaining_topics}")
     #print(f"Remaining learning outcomes: {remaining_learning_outcomes}")
