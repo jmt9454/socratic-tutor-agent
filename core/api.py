@@ -80,6 +80,12 @@ app = FastAPI(
     lifespan=lifespan # <--- Link the lifespan manager here
 )
 
+@app.get("/health")
+async def health():
+    """Lets the OpenWebUI pipe (or curl) verify the backend is up and the graph compiled."""
+    return {"status": "ok", "graph_ready": app_graph is not None}
+
+
 @app.post("/chat", operation_id="chat_with_tutor")
 async def chat_endpoint(payload: ChatInput):
     # Ensure the graph is loaded
