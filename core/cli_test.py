@@ -23,7 +23,7 @@ async def run_conversation(thread_id: str | None = None):
     print(f"--- {'Resuming' if resuming else 'Starting'} Conversation (ID: {thread_id}) ---")
 
     # --- Learning Outcomes ---
-    overall_goal = "Introductory Asymptotic Notation"
+    overall_goal = "Recognizing Phishing and Deceptive Email Tactics"
     learning_outcomes = {
         "1. Deceptive Links and URL Manipulation": [
             "1. Understand the mechanics of **Homograph attacks** and how attackers use visually similar characters from different alphabets to spoof legitimate URLs.",
