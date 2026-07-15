@@ -53,6 +53,7 @@ def inquisitor_node(state: AgentState):
     overall_goal = state.get("overall_goal", "the current subject")
     learning_outcomes = state.get("learning_outcomes", {})
     remaining_outcomes = state.get("remaining_learning_outcomes", [])
+    target_outcome = remaining_outcomes[0] if remaining_outcomes else None
     remaining_topics = state.get("remaining_topics", [])
 
     if not remaining_topics:
@@ -84,13 +85,16 @@ def inquisitor_node(state: AgentState):
     Your Internal Monologue (Strategic Direction):
     {internal_monologue if internal_monologue else "The conversation is just now starting. Greet the student and introduce the first micro-step of the topic."}
 
-    Remaining Learning Plan (Your immediate target is the FIRST item): 
+    Remaining Learning Plan:
     {remaining_outcomes if remaining_outcomes else "Assess overall understanding and summarize."}
 
+    YOUR TARGET OUTCOME (teach toward THIS and only this):
+    {target_outcome if target_outcome else "No specific outcome remains; assess overall understanding and summarize."}
+
     Task: Formulate your response to execute the exact strategy described in your Internal Monologue.
-    - Ground your explanation in the immediate target from the Remaining Learning Plan.
+    - Ground your explanation in the Target Outcome above.
     - Deliver the necessary micro-step of information.
-    - End with a single Socratic question that drives the student toward satisfying this current outcome.
+    - End with a single Socratic question that DIRECTLY probes the Target Outcome. The student's answer will be used as evidence that this exact outcome is met, so do not ask about adjacent material (e.g., defense or prevention tips) unless the Target Outcome itself is about that.
     """
     
     model_messages = [SystemMessage(content=base_prompt)]
@@ -116,6 +120,9 @@ def evaluator_node(state):
         # Nothing from the student to evaluate (e.g., fresh or resumed thread); leave state untouched.
         print("Evaluator Node: No student response found; skipping evaluation.")
         return {}
+
+    last_ai = next((m for m in reversed(messages) if isinstance(m, AIMessage)), None)
+    tutor_question = last_ai.content if last_ai else "(no prior tutor message)"
 
     overall_goal = state.get("overall_goal", "General concepts")
     
@@ -155,8 +162,13 @@ def evaluator_node(state):
     **Remaining Learning Outcomes (Your immediate target is the FIRST one):**
     {remaining_learning_outcomes}
 
+    **THE TUTOR'S MOST RECENT MESSAGE (what the student was responding to):**
+    "{tutor_question}"
+
     **THE STUDENT'S LATEST ANSWER (the only text you are evaluating):**
     "{last_human.content}"
+
+    NOTE: If the tutor's question drifted away from the FIRST outcome (e.g., asked about prevention when the outcome is a definition), judge the student's answer against the FIRST outcome itself, not against the drifted question. A reasonable answer to the question actually asked is NOT automatic evidence the outcome is met.
 
     Output your `decision` (ADVANCE or REMEDIATE) and your strategic advice in the `justification` (which becomes the internal monologue).
     """
