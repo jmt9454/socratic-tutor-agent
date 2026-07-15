@@ -159,7 +159,12 @@ def evaluator_node(state):
     - Decision: Output `REMEDIATE`.
     - Monologue: Identify the specific point of friction. Instruct the Socratic Guide to validate the effort, and suggest a specific, simpler analogy or narrower question.
 
-    **Question Capture (applies to BOTH scenarios):**
+    **Scenario C: No Attempt (Social / Meta / Blank)**
+    - Trigger: The message is a greeting, social nicety, meta-comment ("ok", "sure", "let's go"), or otherwise not an attempt to engage with the concept at all. This is NOT a misunderstanding — do not treat it as one.
+    - Decision: Output `NO_ATTEMPT`.
+    - Monologue: Instruct the Guide to respond warmly and briefly, then re-ask its pending question — do NOT re-teach the concept from scratch.
+
+    **Question Capture (applies to ALL scenarios):**
     If the student's answer contains ANY explicit question or request for clarification, you MUST restate it concisely in `student_question` — even when you ADVANCE. A student's question must never be silently dropped.
 
     **Overall Goal:** {overall_goal}
@@ -176,7 +181,7 @@ def evaluator_node(state):
 
     NOTE: If the tutor's question drifted away from the FIRST outcome (e.g., asked about prevention when the outcome is a definition), judge the student's answer against the FIRST outcome itself, not against the drifted question. A reasonable answer to the question actually asked is NOT automatic evidence the outcome is met.
 
-    Output your `decision` (ADVANCE or REMEDIATE), your strategic advice in the `justification` (which becomes the internal monologue), and any `student_question` (empty string if none).
+    Output your `decision` (ADVANCE, REMEDIATE, or NO_ATTEMPT), your strategic advice in the `justification` (which becomes the internal monologue), and any `student_question` (empty string if none).
     """
 
     model_messages = [SystemMessage(content=prompt)]
