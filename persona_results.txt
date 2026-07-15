@@ -1,0 +1,304 @@
+
+==========================================================================================
+### PERSONA: KNOWLEDGEABLE
+==========================================================================================
+    | Arc Planner: generating arc for outcome - 1. Know that attackers use lookalike characters from other alphabets to disguise URLs presented to a user — a 'homograph' attack.
+    | Arc Planner: Beat 1 - Here are two URLs: `paypal.com` and `раураl.com`. Take a close look at both and tell me if you notice anything unusual or different about the second one compared to the first?
+    | Arc Planner: Beat 2 - Now, let's put the two URLs side by side and focus on the characters that look similar but might be different. What do you think could explain why the second URL looks almost the same but might actually be different?
+    | Arc Planner: Beat 3 - Imagine you received an email with a link that looks like `раураl.com` instead of `paypal.com`. Why do you think someone might create a URL that looks almost identical but uses slightly different characters?
+    | Arc Planner: Beat 4 - In your own words, can you explain what it means when someone uses characters from other alphabets to make a URL look like a familiar one, and why that might be tricky for people to notice?
+    | Arc Planner: Beat 5 - Congratulate the student: what they just described is exactly what security experts call a 'homograph attack' — reveal that term now as the payoff for their explanation. Then ask ONE summary question: now that they know the name, ask them to tell you what a 'homograph attack' is in their own words.
+
+[AGENT]: Hi! Take a close look at these two URLs: `paypal.com` and `раураl.com`. At first glance, they look almost identical, right? But if you look carefully, do you notice anything unusual or different about the second one compared to the first?
+
+[USER]: They look identical at a glance, but the second must be using lookalike characters from another alphabet - probably Cyrillic. Visually the same, but different Unicode, so it's an entirely different domain. Attackers register those to impersonate trusted brands.
+
+    | Evaluator node invoked.
+    | Evaluator Node: Decision - ADVANCE
+    | Evaluator Node: Justification - The student correctly identifies that the second URL uses lookalike characters from another alphabet (likely Cyrillic), which visually mimic the original but are actually different characters. They understand the core idea that attackers exploit this to impersonate trusted domains. This shows a clear grasp of the core mechanism of the concept.
+    | Evaluator Node: Beats remaining in arc - 4
+    | Evaluator Node: Remaining Learning Outcomes - ["1. Know that attackers use lookalike characters from other alphabets to disguise URLs presented to a user — a 'homograph' attack.", "2. Recognize how users can misspell domains and arrive at a different site ('typosquatting').", "3. Understand that attackers can bounce links through trusted sites via redirects ('open redirect' vulnerabilities).", "4. Always check a link's true destination (e.g., by hovering) before clicking — the displayed text and the actual address can differ."]
+[AGENT]: You’re right—those characters can look nearly identical but come from different alphabets, which tricks the eye. Let’s look closely at the two URLs side by side: `paypal.com` and `раураl.com`. Notice how some letters might appear the same but could actually be different characters that just look alike? What do you think causes this kind of confusion when looking at URLs like these?
+
+[USER]: It's a spoofing trick: substitute visually identical foreign characters into a domain so a human reads 'paypal' but the computer resolves a completely different site. It exploits the gap between human perception and how domains actually match characters.
+
+    | Evaluator node invoked.
+    | Evaluator Node: Decision - ADVANCE
+    | Evaluator Node: Justification - The student clearly understands that attackers substitute visually identical characters from other alphabets to create deceptive URLs that look like trusted domains to humans but resolve differently in computers. This shows a solid grasp of the core idea behind the tactic. The Socratic Guide should validate this insight, celebrate the student's understanding, and smoothly introduce the next concept.
+    | Evaluator Node: Beats remaining in arc - 3
+    | Evaluator Node: Remaining Learning Outcomes - ["1. Know that attackers use lookalike characters from other alphabets to disguise URLs presented to a user — a 'homograph' attack.", "2. Recognize how users can misspell domains and arrive at a different site ('typosquatting').", "3. Understand that attackers can bounce links through trusted sites via redirects ('open redirect' vulnerabilities).", "4. Always check a link's true destination (e.g., by hovering) before clicking — the displayed text and the actual address can differ."]
+[AGENT]: You explained that really well—attackers want to trick people by making a URL look familiar but actually lead somewhere else, exploiting how our eyes and brains read characters. Imagine you got an email with a link that looks like `раураl.com` instead of `paypal.com`. Why do you think someone would go through the trouble of creating a URL that looks almost identical but uses slightly different characters?
+
+[USER]: It's when an attacker swaps characters in a legit domain for visually identical ones from other alphabets, creating a lookalike domain that fools people into visiting a malicious site.
+
+    | Evaluator node invoked.
+    | Evaluator Node: Decision - ADVANCE
+    | Evaluator Node: Justification - The student clearly understands that attackers replace characters in legitimate domains with visually identical ones from other alphabets to create deceptive URLs that trick users into visiting malicious sites. This shows a solid grasp of the core idea behind the concept. The guide should validate this understanding, celebrate the student's insight, and smoothly introduce the next concept.
+    | Evaluator Node: Beats remaining in arc - 2
+    | Evaluator Node: Remaining Learning Outcomes - ["1. Know that attackers use lookalike characters from other alphabets to disguise URLs presented to a user — a 'homograph' attack.", "2. Recognize how users can misspell domains and arrive at a different site ('typosquatting').", "3. Understand that attackers can bounce links through trusted sites via redirects ('open redirect' vulnerabilities).", "4. Always check a link's true destination (e.g., by hovering) before clicking — the displayed text and the actual address can differ."]
+[AGENT]: You’ve got a solid grasp on this. When someone swaps characters from other alphabets into a URL to make it look like a familiar site, it’s tricky because our eyes naturally read what looks right, not what’s actually there. This kind of trick can fool people into thinking they’re clicking a safe link when they’re not.
+
+In your own words, can you explain what it means when someone uses characters from other alphabets to make a URL look like a familiar one, and why that might be hard for people to notice?
+
+[USER]: Typosquatting is different - it relies on plain misspellings a hurried typist makes, like gogle.com, or small swaps like a zero for an o. No foreign alphabets needed; they register the typo'd domain and catch people who mistype.
+
+    | Evaluator node invoked.
+    | Evaluator Node: Decision - REMEDIATE
+    | Evaluator Node: Justification - The student described a related but different concept involving misspellings and character swaps within the same alphabet, which does not demonstrate understanding of the core idea that attackers use lookalike characters from other alphabets to disguise URLs. They did not address the use of foreign alphabet characters to create deceptive URLs, so they have not grasped the current concept. The tutor should validate the student's effort and then ask a simpler, more focused question to guide them toward recognizing the use of foreign characters in URLs.
+    | Evaluator Node: Beats remaining in arc - 2
+    | Evaluator Node: Remaining Learning Outcomes - ["1. Know that attackers use lookalike characters from other alphabets to disguise URLs presented to a user — a 'homograph' attack.", "2. Recognize how users can misspell domains and arrive at a different site ('typosquatting').", "3. Understand that attackers can bounce links through trusted sites via redirects ('open redirect' vulnerabilities).", "4. Always check a link's true destination (e.g., by hovering) before clicking — the displayed text and the actual address can differ."]
+[AGENT]: You’re absolutely right about typosquatting—it’s about misspellings or small character swaps within the same alphabet. That’s a different trick from what we were discussing earlier.
+
+Now, thinking back to the idea of using characters from other alphabets that look like familiar letters, can you explain in your own words what it means when someone uses those foreign characters to make a URL look like a trusted one? Why might that be especially tricky for people to notice?
+
+[USER]: An open redirect is when a trusted site has a redirect parameter that isn't validated, like trusted.com/redirect?url=evil.com. The link starts at a domain you trust but silently bounces you to the attacker's site.
+
+    | Evaluator node invoked.
+    | Evaluator Node: Decision - REMEDIATE
+    | Evaluator Node: Justification - The student answered about a different concept (open redirects) rather than explaining the use of lookalike characters from other alphabets to disguise URLs. This indicates a misunderstanding or confusion about the current concept. The tutor should validate the student's effort and then re-engage with a simpler analogy or a narrower question focused specifically on the idea of using foreign characters to mimic familiar URLs.
+    | Evaluator Node: Beats remaining in arc - 2
+    | Evaluator Node: Remaining Learning Outcomes - ["1. Know that attackers use lookalike characters from other alphabets to disguise URLs presented to a user — a 'homograph' attack.", "2. Recognize how users can misspell domains and arrive at a different site ('typosquatting').", "3. Understand that attackers can bounce links through trusted sites via redirects ('open redirect' vulnerabilities).", "4. Always check a link's true destination (e.g., by hovering) before clicking — the displayed text and the actual address can differ."]
+[AGENT]: You gave a good example of open redirects, which is another sneaky trick attackers use. But let’s circle back to the idea of using characters from other alphabets to make a URL look familiar. 
+
+In your own words, can you explain what it means when someone swaps letters from different alphabets into a URL to make it look like a trusted site, and why that might be hard for people to notice?
+
+[USER]: Because the displayed text of a link and its underlying address are independent - the text can say bank.com while the actual destination is anything. Hovering exposes the real address before you commit to clicking.
+
+    | Evaluator node invoked.
+    | Evaluator Node: Decision - REMEDIATE
+    | Evaluator Node: Justification - The student's answer describes the difference between displayed link text and actual URL destination, which relates to checking links before clicking, but does not address the core concept of using lookalike characters from other alphabets to disguise URLs. This indicates a misunderstanding of the current concept. The guide should validate the student's effort and then ask a simpler, more focused question or provide an analogy about characters from different alphabets that look similar to familiar letters.
+    | Evaluator Node: Beats remaining in arc - 2
+    | Evaluator Node: Remaining Learning Outcomes - ["1. Know that attackers use lookalike characters from other alphabets to disguise URLs presented to a user — a 'homograph' attack.", "2. Recognize how users can misspell domains and arrive at a different site ('typosquatting').", "3. Understand that attackers can bounce links through trusted sites via redirects ('open redirect' vulnerabilities).", "4. Always check a link's true destination (e.g., by hovering) before clicking — the displayed text and the actual address can differ."]
+[AGENT]: You made a great point about how the text you see and the actual link destination can be different—that’s an important thing to watch for. But let’s focus back on the idea of using characters from other alphabets to make a URL look like a familiar one.
+
+In your own words, what does it mean when someone swaps letters from a different alphabet into a URL to make it look like a trusted site? Why do you think that kind of trick might be hard for people to notice?
+
+[USER]: You hover to reveal the true destination, then check the domain carefully for lookalikes, typos, or redirect parameters before clicking.
+
+    | Evaluator node invoked.
+    | Evaluator Node: Decision - REMEDIATE
+    | Evaluator Node: Justification - The student’s answer focuses on checking links before clicking, which relates to a later concept, but does not explain what it means to use characters from other alphabets to disguise a URL or why that is tricky to notice. This indicates a misunderstanding or missing grasp of the core idea of the current concept. The guide should validate the student's effort and ask a simpler, more focused question or analogy to clarify the idea of swapping lookalike characters from different alphabets.
+    | Evaluator Node: Beats remaining in arc - 2
+    | Evaluator Node: Remaining Learning Outcomes - ["1. Know that attackers use lookalike characters from other alphabets to disguise URLs presented to a user — a 'homograph' attack.", "2. Recognize how users can misspell domains and arrive at a different site ('typosquatting').", "3. Understand that attackers can bounce links through trusted sites via redirects ('open redirect' vulnerabilities).", "4. Always check a link's true destination (e.g., by hovering) before clicking — the displayed text and the actual address can differ."]
+[AGENT]: You’re definitely on the right track thinking about checking links carefully before clicking. Let’s zoom in on the idea of using characters from other alphabets to make a URL look familiar. 
+
+Imagine you see a URL that looks exactly like `paypal.com` but some of the letters are actually from a different alphabet that just happens to look the same. What do you think makes this kind of trick especially hard for people to notice?
+
+[USER]: Verify the real address behind every link, because display text proves nothing.
+
+    | Evaluator node invoked.
+    | Evaluator Node: Decision - REMEDIATE
+    | Evaluator Node: Justification - The student’s answer focuses on verifying the real address behind links, which relates to checking links before clicking, but it does not address the core concept of using lookalike characters from other alphabets to disguise URLs. They missed explaining why this trick is hard to notice visually, which is the key point of the current outcome. The tutor should validate the student's effort and then ask a simpler, more direct question or use an analogy about letters from different alphabets looking the same to help the student grasp the core idea.
+    | Evaluator Node: Beats remaining in arc - 2
+    | Evaluator Node: Remaining Learning Outcomes - ["1. Know that attackers use lookalike characters from other alphabets to disguise URLs presented to a user — a 'homograph' attack.", "2. Recognize how users can misspell domains and arrive at a different site ('typosquatting').", "3. Understand that attackers can bounce links through trusted sites via redirects ('open redirect' vulnerabilities).", "4. Always check a link's true destination (e.g., by hovering) before clicking — the displayed text and the actual address can differ."]
+[AGENT]: You’re right that checking the real address behind a link is crucial. Now, thinking specifically about using letters from other alphabets that look just like familiar ones—what does it mean when someone swaps in those lookalike characters to make a URL appear trustworthy? Why do you think that kind of trick can be so hard for people to spot just by looking?
+
+### KNOWLEDGEABLE done in 33s; final remaining outcomes: ["1. Know that attackers use lookalike characters from other alphabets to disguise URLs presented to a user — a 'homograph' attack.", "2. Recognize how users can misspell domains and arrive at a different site ('typosquatting').", "3. Understand that attackers can bounce links through trusted sites via redirects ('open redirect' vulnerabilities).", "4. Always check a link's true destination (e.g., by hovering) before clicking — the displayed text and the actual address can differ."]
+
+==========================================================================================
+### PERSONA: DOUBTFUL
+==========================================================================================
+    | Arc Planner: generating arc for outcome - 1. Know that attackers use lookalike characters from other alphabets to disguise URLs presented to a user — a 'homograph' attack.
+    | Arc Planner: Beat 1 - Here are two URLs: `paypal.com` and `раураl.com`. Take a close look at both and tell me if you notice anything unusual or different about the second one compared to the first?
+    | Arc Planner: Beat 2 - Now, let's put the two URLs side by side and focus on the characters that look similar: `p` in `paypal.com` and the first `p` in `раураl.com`. Can you describe what might be causing these characters to look alike but actually be different?
+    | Arc Planner: Beat 3 - Imagine you received an email with a link that looks like `раураl.com` instead of `paypal.com`. Why do you think someone might create a URL that looks almost identical but uses different characters?
+    | Arc Planner: Beat 4 - In your own words, explain what it means when attackers use characters from other alphabets to make URLs look like real ones. What is happening in this kind of trick?
+    | Arc Planner: Beat 5 - Congratulate the student: what they just described is exactly what security experts call a 'homograph attack' — reveal that term now as the payoff for their explanation. Then ask ONE summary question: now that they know the name, ask them to tell you what a 'homograph attack' is in their own words.
+
+[AGENT]: Welcome! Take a close look at these two URLs: `paypal.com` and `раураl.com`. Do you notice anything unusual or different about the second one compared to the first? What stands out to you?
+
+[USER]: um, they look the same to me? I'm not sure what I'm supposed to see
+
+    | Evaluator node invoked.
+    | Evaluator Node: Decision - REMEDIATE
+    | Evaluator Node: Student Question - I'm not sure what I'm supposed to see
+    | Evaluator Node: Justification - FIRST: directly and plainly answer the student's question: "I'm not sure what I'm supposed to see". THEN: The student is unsure and does not recognize any difference between the two URLs, indicating they have not yet grasped the core idea that the second URL uses lookalike characters from another alphabet. The tutor should validate the student's effort and then use a simpler analogy or a more focused question to help the student notice the subtle difference in characters.
+    | Evaluator Node: Beats remaining in arc - 5
+    | Evaluator Node: Remaining Learning Outcomes - ["1. Know that attackers use lookalike characters from other alphabets to disguise URLs presented to a user — a 'homograph' attack.", "2. Recognize how users can misspell domains and arrive at a different site ('typosquatting').", "3. Understand that attackers can bounce links through trusted sites via redirects ('open redirect' vulnerabilities).", "4. Always check a link's true destination (e.g., by hovering) before clicking — the displayed text and the actual address can differ."]
+[AGENT]: That’s a great question! At first glance, those two URLs really do look almost identical, so it’s easy to miss any difference. What’s tricky here is that some letters in the second URL aren’t the usual English letters—they’re characters from a different alphabet that look very similar to English ones. It’s like if someone swapped out a letter in your name with a letter from another language that looks almost the same but isn’t quite right.
+
+Imagine you’re looking at two signs: one says “PARK” and the other says “ΡΑRK” — they look the same, but the second sign uses a Greek letter that looks like “P” instead of the English “P.” That’s the kind of subtle swap happening in the second URL.
+
+Looking closely at `paypal.com` and `раураl.com`, can you spot which letters might be from a different alphabet or look slightly off?
+
+[USER]: I guess... maybe? I don't really know
+
+    | Evaluator node invoked.
+    | Evaluator Node: Decision - REMEDIATE
+    | Evaluator Node: Justification - The student expresses uncertainty and does not identify any specific difference between the URLs, indicating they do not yet grasp the core idea that some characters are from a different alphabet. The tutor should validate the student's effort and try a simpler analogy or a more focused question to help them notice the subtle character differences.
+    | Evaluator Node: Beats remaining in arc - 5
+    | Evaluator Node: Remaining Learning Outcomes - ["1. Know that attackers use lookalike characters from other alphabets to disguise URLs presented to a user — a 'homograph' attack.", "2. Recognize how users can misspell domains and arrive at a different site ('typosquatting').", "3. Understand that attackers can bounce links through trusted sites via redirects ('open redirect' vulnerabilities).", "4. Always check a link's true destination (e.g., by hovering) before clicking — the displayed text and the actual address can differ."]
+[AGENT]: You’re right to say it’s tricky! Let’s try looking at just one letter at a time. Focus on the first letter “p” in `paypal.com` and the first “p” in `раураl.com`. Do they look exactly the same to you, or is there something slightly different about how they appear?
+
+[USER]: kind of? like the letters are fake somehow?
+
+    | Evaluator node invoked.
+    | Evaluator Node: Decision - ADVANCE
+    | Evaluator Node: Justification - The student recognizes that the letters in the second URL are not genuine English letters but 'fake' or different in some way, which captures the core idea of the tactic using lookalike characters from other alphabets to disguise URLs. This shows a directional understanding of the concept, so they should be encouraged and moved forward to the next step.
+    | Evaluator Node: Beats remaining in arc - 4
+    | Evaluator Node: Remaining Learning Outcomes - ["1. Know that attackers use lookalike characters from other alphabets to disguise URLs presented to a user — a 'homograph' attack.", "2. Recognize how users can misspell domains and arrive at a different site ('typosquatting').", "3. Understand that attackers can bounce links through trusted sites via redirects ('open redirect' vulnerabilities).", "4. Always check a link's true destination (e.g., by hovering) before clicking — the displayed text and the actual address can differ."]
+[AGENT]: You’re on the right track calling those letters “fake” — that’s a good way to think about it. Now, let’s look closely at the first letter “p” in `paypal.com` and the first “p” in `раураl.com` side by side. They look very similar, but one might actually be a letter from a different alphabet that just looks like the English “p.” 
+
+What do you think could make these characters look almost the same to our eyes but actually be different when you look carefully?
+
+[USER]: I'm not sure. maybe because they want to trick people? idk
+
+    | Evaluator node invoked.
+    | Evaluator Node: Decision - ADVANCE
+    | Evaluator Node: Justification - The student recognizes that the letters are 'fake' and suggests the purpose is to trick people, which captures the core idea of using lookalike characters to deceive users. Although unsure, this shows a directional understanding of the tactic's intent, so the student should be validated and moved forward.
+    | Evaluator Node: Beats remaining in arc - 3
+    | Evaluator Node: Remaining Learning Outcomes - ["1. Know that attackers use lookalike characters from other alphabets to disguise URLs presented to a user — a 'homograph' attack.", "2. Recognize how users can misspell domains and arrive at a different site ('typosquatting').", "3. Understand that attackers can bounce links through trusted sites via redirects ('open redirect' vulnerabilities).", "4. Always check a link's true destination (e.g., by hovering) before clicking — the displayed text and the actual address can differ."]
+[AGENT]: You actually touched on the main idea when you said it’s to trick people. Imagine someone wants you to think you’re clicking on a safe site like `paypal.com`, but they swap out some letters with ones from other alphabets that look almost the same. This way, the link looks familiar and trustworthy at a quick glance, but it actually leads somewhere else.
+
+Why do you think attackers would go through the trouble of making a URL look almost identical but use different characters instead of just making a completely different-looking link?
+
+[USER]: so it's like a fake link that looks real? is that right?
+
+    | Evaluator node invoked.
+    | Evaluator Node: Decision - ADVANCE
+    | Evaluator Node: Justification - The student correctly identifies that the link is fake but designed to look real, capturing the core idea of this deceptive tactic. Although brief and somewhat unsure, their answer shows they grasp the main purpose of using lookalike characters to trick users. This is enough to move forward to the next concept.
+    | Evaluator Node: Beats remaining in arc - 2
+    | Evaluator Node: Remaining Learning Outcomes - ["1. Know that attackers use lookalike characters from other alphabets to disguise URLs presented to a user — a 'homograph' attack.", "2. Recognize how users can misspell domains and arrive at a different site ('typosquatting').", "3. Understand that attackers can bounce links through trusted sites via redirects ('open redirect' vulnerabilities).", "4. Always check a link's true destination (e.g., by hovering) before clicking — the displayed text and the actual address can differ."]
+[AGENT]: Yes, exactly—a fake link that looks real to trick you. What’s happening is attackers take letters from alphabets like Cyrillic or Greek that look almost the same as English letters and swap them into the URL. So, the link looks normal to your eyes, but it’s actually a different address leading somewhere dangerous.
+
+In your own words, what do you think is going on when attackers use these lookalike letters from other alphabets to disguise a URL?
+
+[USER]: I think I get it... the letters come from a different language but look the same, so the link goes somewhere else?
+
+    | Evaluator node invoked.
+    | Evaluator Node: Decision - ADVANCE
+    | Evaluator Node: Justification - The student correctly identified that attackers use letters from different alphabets that look the same to disguise URLs, causing the link to lead somewhere else. This shows a clear grasp of the core idea behind the tactic. The answer is brief but contains the essential mechanism in their own words, meeting the criteria to move forward.
+    | Evaluator Node: Beats remaining in arc - 1
+    | Evaluator Node: Remaining Learning Outcomes - ["1. Know that attackers use lookalike characters from other alphabets to disguise URLs presented to a user — a 'homograph' attack.", "2. Recognize how users can misspell domains and arrive at a different site ('typosquatting').", "3. Understand that attackers can bounce links through trusted sites via redirects ('open redirect' vulnerabilities).", "4. Always check a link's true destination (e.g., by hovering) before clicking — the displayed text and the actual address can differ."]
+[AGENT]: You got it exactly right! What you just described—using letters from other alphabets that look like English ones to trick people—is exactly what security experts call a "homograph attack." It’s a sneaky way to disguise a URL so it looks safe but actually leads somewhere else.
+
+Now, can you explain in your own words what a homograph attack is?
+
+[USER]: hmm, I don't really understand how that part works
+
+    | Evaluator node invoked.
+    | Evaluator Node: Decision - REMEDIATE
+    | Evaluator Node: Student Question - I don't really understand how that part works
+    | Evaluator Node: Justification - FIRST: directly and plainly answer the student's question: "I don't really understand how that part works". THEN: The student expresses confusion about how the concept works, indicating they do not yet grasp the core mechanism of using lookalike characters from other alphabets to disguise URLs. The student needs a simpler analogy or a more focused explanation to clarify why these characters can trick users.
+    | Evaluator Node: Beats remaining in arc - 1
+    | Evaluator Node: Remaining Learning Outcomes - ["1. Know that attackers use lookalike characters from other alphabets to disguise URLs presented to a user — a 'homograph' attack.", "2. Recognize how users can misspell domains and arrive at a different site ('typosquatting').", "3. Understand that attackers can bounce links through trusted sites via redirects ('open redirect' vulnerabilities).", "4. Always check a link's true destination (e.g., by hovering) before clicking — the displayed text and the actual address can differ."]
+[AGENT]: Great question! Here’s how it works: some alphabets have letters that look almost exactly like English letters, but they’re actually different characters. When attackers swap in these lookalike letters, your brain reads the URL as normal because it looks familiar, but the computer sees a completely different address. That’s why the link can take you somewhere else without you noticing.
+
+What you described—using these lookalike letters to trick people—is exactly what security experts call a "homograph attack."
+
+Now that you know the name, can you explain in your own words what a homograph attack is?
+
+[USER]: ok so I should look at the link closely before clicking?
+
+    | Evaluator node invoked.
+    | Evaluator Node: Decision - ADVANCE
+    | Evaluator Node: Justification - The student shows an understanding that the core idea involves deceptive links that look real but are not, indicating they grasp the gist of the concept. Although their answer focuses on the practical advice to look closely before clicking, it reflects awareness of the tactic's intent to trick users with lookalike characters. This is sufficient to advance to the next concept.
+    | Evaluator Node: Beats remaining in arc - 0
+    | Evaluator Node: Remaining Learning Outcomes - ["2. Recognize how users can misspell domains and arrive at a different site ('typosquatting').", "3. Understand that attackers can bounce links through trusted sites via redirects ('open redirect' vulnerabilities).", "4. Always check a link's true destination (e.g., by hovering) before clicking — the displayed text and the actual address can differ."]
+    | Arc Planner: generating arc for outcome - 2. Recognize how users can misspell domains and arrive at a different site ('typosquatting').
+    | Arc Planner: Beat 1 - Here are two URLs: `paypa1.com` and `paypal.com`. Take a close look and tell me what differences you notice between them.
+    | Arc Planner: Beat 2 - Now, look specifically at the part where the two URLs differ: the '1' in `paypa1.com` versus the 'l' in `paypal.com`. How might this small change affect where the link takes you?
+    | Arc Planner: Beat 3 - Imagine you accidentally type `paypa1.com` instead of `paypal.com`. What do you think could happen if you visit that site?
+    | Arc Planner: Beat 4 - In your own words, why do you think attackers create URLs that are very similar to real ones but with small changes like these? What might be their goal?
+    | Arc Planner: Beat 5 - Congratulate the student: what they just described is exactly what security experts call a 'typosquatting' — reveal that term now as the payoff for their explanation. Then ask ONE summary question: now that they know the name, ask them to tell you what a 'typosquatting' is in their own words.
+[AGENT]: Exactly, looking closely before clicking is a smart habit! Now, let’s try something similar with these two URLs: `paypa1.com` and `paypal.com`. Take a careful look and tell me what differences you notice between them.
+
+### DOUBTFUL done in 40s; final remaining outcomes: ["2. Recognize how users can misspell domains and arrive at a different site ('typosquatting').", "3. Understand that attackers can bounce links through trusted sites via redirects ('open redirect' vulnerabilities).", "4. Always check a link's true destination (e.g., by hovering) before clicking — the displayed text and the actual address can differ."]
+
+==========================================================================================
+### PERSONA: OFF_TOPIC
+==========================================================================================
+    | Arc Planner: generating arc for outcome - 1. Know that attackers use lookalike characters from other alphabets to disguise URLs presented to a user — a 'homograph' attack.
+    | Arc Planner: Beat 1 - Here are two URLs: `paypal.com` and `раураl.com`. Take a close look at both and tell me if you notice anything unusual or different about the second one compared to the first?
+    | Arc Planner: Beat 2 - Now, let's put the two URLs side by side and focus on the characters that look similar but might be different. What do you think could explain why the second URL looks almost identical but might actually be different?
+    | Arc Planner: Beat 3 - Imagine you received an email with a link that looks like a familiar website but uses characters from another alphabet to trick you. Why do you think someone would create a URL like this instead of just using a normal misspelling?
+    | Arc Planner: Beat 4 - In your own words, explain what is happening when attackers use characters from other alphabets to make a URL look like a trusted site. What is the main idea behind this trick?
+    | Arc Planner: Beat 5 - Congratulate the student: what they just described is exactly what security experts call a 'homograph attack' — reveal that term now as the payoff for their explanation. Then ask ONE summary question: now that they know the name, ask them to tell you what a 'homograph attack' is in their own words.
+
+[AGENT]: Hi! Let’s start by looking closely at these two URLs: `paypal.com` and `раураl.com`. At first glance, they look almost the same, right? But if you look carefully, do you notice anything unusual or different about the second one compared to the first? What stands out to you?
+
+[USER]: hey what's up
+
+    | Evaluator node invoked.
+    | Evaluator Node: Decision - NO_ATTEMPT
+    | Evaluator Node: Justification - The student's response is a casual greeting and does not engage with the concept of comparing the two URLs or noticing differences. This is not an attempt to answer the question about the URLs.
+    | Evaluator Node: Beats remaining in arc - 5
+    | Evaluator Node: Remaining Learning Outcomes - ["1. Know that attackers use lookalike characters from other alphabets to disguise URLs presented to a user — a 'homograph' attack.", "2. Recognize how users can misspell domains and arrive at a different site ('typosquatting').", "3. Understand that attackers can bounce links through trusted sites via redirects ('open redirect' vulnerabilities).", "4. Always check a link's true destination (e.g., by hovering) before clicking — the displayed text and the actual address can differ."]
+[AGENT]: Hey! I get that you’re just saying hi, but let’s bring our attention back to those two URLs I showed you: `paypal.com` and `раураl.com`. If you look closely, do you notice anything unusual or different about the second one compared to the first? What do you see?
+
+[USER]: do you like football?
+
+    | Evaluator node invoked.
+    | Evaluator Node: Decision - NO_ATTEMPT
+    | Evaluator Node: Justification - The student's response is a social comment unrelated to the concept of spotting differences in URLs. It does not engage with the learning outcome or the tutor's question. The guide should respond warmly and re-ask the pending question to refocus the student.
+    | Evaluator Node: Beats remaining in arc - 5
+    | Evaluator Node: Remaining Learning Outcomes - ["1. Know that attackers use lookalike characters from other alphabets to disguise URLs presented to a user — a 'homograph' attack.", "2. Recognize how users can misspell domains and arrive at a different site ('typosquatting').", "3. Understand that attackers can bounce links through trusted sites via redirects ('open redirect' vulnerabilities).", "4. Always check a link's true destination (e.g., by hovering) before clicking — the displayed text and the actual address can differ."]
+[AGENT]: I get that football is fun to talk about! Let’s bring our focus back to those two URLs: `paypal.com` and `раураl.com`. Look very closely at the second one—do you notice anything unusual about the letters themselves, not just the overall word? What might be different about those characters?
+
+[USER]: lol ok. what should I have for lunch today
+
+    | Evaluator node invoked.
+    | Evaluator Node: Decision - NO_ATTEMPT
+    | Evaluator Node: Justification - The student's response is a social comment unrelated to the concept being taught. They did not attempt to engage with the question about the URLs or the concept of lookalike characters in URLs.
+    | Evaluator Node: Beats remaining in arc - 5
+    | Evaluator Node: Remaining Learning Outcomes - ["1. Know that attackers use lookalike characters from other alphabets to disguise URLs presented to a user — a 'homograph' attack.", "2. Recognize how users can misspell domains and arrive at a different site ('typosquatting').", "3. Understand that attackers can bounce links through trusted sites via redirects ('open redirect' vulnerabilities).", "4. Always check a link's true destination (e.g., by hovering) before clicking — the displayed text and the actual address can differ."]
+[AGENT]: I hear you on lunch choices—always a good topic! But before we decide on food, let’s get back to those URLs: `paypal.com` and `раураl.com`. Take a really close look at the second one. Do any of the letters look a bit off or different from what you’d expect? What do you notice about the characters in the second URL compared to the first?
+
+[USER]: this is kinda boring, tell me a joke
+
+    | Evaluator node invoked.
+    | Evaluator Node: Decision - NO_ATTEMPT
+    | Evaluator Node: Student Question - tell me a joke
+    | Evaluator Node: Justification - FIRST: directly and plainly answer the student's question: "tell me a joke". THEN: The student did not engage with the concept and instead requested a joke, which is a social/meta comment. The tutor should respond warmly and then re-ask the pending question about the URLs.
+    | Evaluator Node: Beats remaining in arc - 5
+    | Evaluator Node: Remaining Learning Outcomes - ["1. Know that attackers use lookalike characters from other alphabets to disguise URLs presented to a user — a 'homograph' attack.", "2. Recognize how users can misspell domains and arrive at a different site ('typosquatting').", "3. Understand that attackers can bounce links through trusted sites via redirects ('open redirect' vulnerabilities).", "4. Always check a link's true destination (e.g., by hovering) before clicking — the displayed text and the actual address can differ."]
+[AGENT]: Sure, here’s a quick one: Why did the computer go to the doctor? Because it had a virus! 
+
+Now, back to those URLs: `paypal.com` and `раураl.com`. Take a really close look at the second one—do any of the letters look a bit unusual or different from what you’d expect? What do you notice about the characters in the second URL compared to the first?
+
+[USER]: fine fine... I guess they look the same to me
+
+    | Evaluator node invoked.
+    | Evaluator Node: Decision - REMEDIATE
+    | Evaluator Node: Justification - The student says the URLs look the same, indicating they do not notice the subtle difference in characters that is the core of this concept. This shows a fundamental gap in recognizing that attackers use lookalike characters from other alphabets to disguise URLs. The tutor should validate the student's effort and then guide them with a simpler analogy or a more focused question to help them see the difference.
+    | Evaluator Node: Beats remaining in arc - 5
+    | Evaluator Node: Remaining Learning Outcomes - ["1. Know that attackers use lookalike characters from other alphabets to disguise URLs presented to a user — a 'homograph' attack.", "2. Recognize how users can misspell domains and arrive at a different site ('typosquatting').", "3. Understand that attackers can bounce links through trusted sites via redirects ('open redirect' vulnerabilities).", "4. Always check a link's true destination (e.g., by hovering) before clicking — the displayed text and the actual address can differ."]
+[AGENT]: You’re right that at a quick glance, those two URLs look the same—and that’s exactly what makes this tricky! Think of it like two words that look identical but one uses letters from a different alphabet that just happen to look like the letters you know. For example, some letters in the Cyrillic alphabet look almost exactly like Latin letters but are actually different characters.
+
+Here are the two URLs again: `paypal.com` and `раураl.com`. Take a very close look at the second one. Can you spot any letters that might be from a different alphabet or look slightly different if you focus on their shape or style? What do you notice?
+
+[USER]: whats your favorite movie
+
+    | Evaluator node invoked.
+    | Evaluator Node: Decision - NO_ATTEMPT
+    | Evaluator Node: Student Question - whats your favorite movie
+    | Evaluator Node: Justification - FIRST: directly and plainly answer the student's question: "whats your favorite movie". THEN: The student's response is a social question unrelated to the concept being taught. It does not engage with the current topic of spotting deceptive characters in URLs. The guide should respond warmly and re-ask the pending question to keep the conversation on track.
+    | Evaluator Node: Beats remaining in arc - 5
+    | Evaluator Node: Remaining Learning Outcomes - ["1. Know that attackers use lookalike characters from other alphabets to disguise URLs presented to a user — a 'homograph' attack.", "2. Recognize how users can misspell domains and arrive at a different site ('typosquatting').", "3. Understand that attackers can bounce links through trusted sites via redirects ('open redirect' vulnerabilities).", "4. Always check a link's true destination (e.g., by hovering) before clicking — the displayed text and the actual address can differ."]
+[AGENT]: Great question! I don’t watch movies myself, but I’m always curious about what people enjoy. Now, back to those URLs: `paypal.com` and `раураl.com`. Take a close look at both and tell me if you notice anything unusual or different about the second one compared to the first?
+
+[USER]: ok ok. the second one has weird letters that only look like the real ones
+
+    | Evaluator node invoked.
+    | Evaluator Node: Decision - ADVANCE
+    | Evaluator Node: Justification - The student correctly identifies that the second URL contains letters that look like the real ones but are actually different, capturing the core idea of using lookalike characters from another alphabet to disguise URLs. This shows a clear grasp of the concept's gist, so we can move forward.
+    | Evaluator Node: Beats remaining in arc - 4
+    | Evaluator Node: Remaining Learning Outcomes - ["1. Know that attackers use lookalike characters from other alphabets to disguise URLs presented to a user — a 'homograph' attack.", "2. Recognize how users can misspell domains and arrive at a different site ('typosquatting').", "3. Understand that attackers can bounce links through trusted sites via redirects ('open redirect' vulnerabilities).", "4. Always check a link's true destination (e.g., by hovering) before clicking — the displayed text and the actual address can differ."]
+[AGENT]: You’re right—those letters look almost the same but might actually be different characters. Let’s look at the two URLs side by side again: `paypal.com` and `раураl.com`. 
+
+What do you think could explain why the second URL looks almost identical to the first but might actually be a different address? Why would someone make it look so similar but use different characters?
+
+[USER]: can we be done soon
+
+    | Evaluator node invoked.
+    | Evaluator Node: Decision - NO_ATTEMPT
+    | Evaluator Node: Justification - The student’s response is a meta-comment expressing a desire to finish soon and does not engage with the concept of why the second URL looks similar but might be different. This is not a misunderstanding but a lack of attempt to answer the question. The guide should respond warmly and re-ask the pending question to encourage engagement.
+    | Evaluator Node: Beats remaining in arc - 4
+    | Evaluator Node: Remaining Learning Outcomes - ["1. Know that attackers use lookalike characters from other alphabets to disguise URLs presented to a user — a 'homograph' attack.", "2. Recognize how users can misspell domains and arrive at a different site ('typosquatting').", "3. Understand that attackers can bounce links through trusted sites via redirects ('open redirect' vulnerabilities).", "4. Always check a link's true destination (e.g., by hovering) before clicking — the displayed text and the actual address can differ."]
+[AGENT]: I totally get wanting to wrap up soon—it’s been a lot to think about! Let’s take one last close look at these two URLs side by side: `paypal.com` and `раураl.com`. They look almost identical, right? 
+
+What do you think could explain why the second one looks so much like the first but might actually be a different address? Why would someone go to the trouble of making it look nearly the same but use different characters?
+
+### OFF_TOPIC done in 28s; final remaining outcomes: ["1. Know that attackers use lookalike characters from other alphabets to disguise URLs presented to a user — a 'homograph' attack.", "2. Recognize how users can misspell domains and arrive at a different site ('typosquatting').", "3. Understand that attackers can bounce links through trusted sites via redirects ('open redirect' vulnerabilities).", "4. Always check a link's true destination (e.g., by hovering) before clicking — the displayed text and the actual address can differ."]
+
+ALL_PERSONAS_DONE
