@@ -1,21 +1,17 @@
 """
 title: LG Tutor (Socratic Guide)
 author: J
-version: 0.2.0
-description: Bridges OpenWebUI to the LangGraph tutor FastAPI backend.
-             Maps OpenWebUI's chat_id -> the graph's thread_id so each
-             OpenWebUI conversation is its own persistent tutoring session.
-             Streams the tutor's reply token-by-token and shows a status
-             indicator while the evaluator/arc-planner phase runs.
-
-INSTALL: OpenWebUI -> Admin Panel -> Functions -> (+) -> paste this file ->
-         Save -> enable the toggle. Then set the Valves (gear icon) if your
-         API isn't at the default URL. The tutor appears as a model named
-         "LG Tutor" in the model picker.
-
-NOTE: This file is the source of truth; the copy inside OpenWebUI's database
-      must be re-pasted after edits here.
+version: 0.2.1
+description: Streams the LangGraph tutor backend into OpenWebUI with a per-chat thread and a thinking status indicator.
+requirements: aiohttp
 """
+
+# INSTALL: OpenWebUI -> Admin Panel -> Functions -> (+) -> paste this file ->
+# Save -> enable the toggle. Set the Valves (gear icon) if your API isn't at
+# the default URL. The tutor appears as "LG Tutor" in the model picker.
+#
+# NOTE: This file is the source of truth; the copy inside OpenWebUI's database
+# must be re-pasted after edits here.
 
 import hashlib
 
@@ -41,7 +37,7 @@ class Pipe:
             description="Seconds to wait for the tutor backend.",
         )
         STATUS_MESSAGE: str = Field(
-            default="Reading your answer…",
+            default="Reading your answer...",
             description="Status text shown while the tutor is thinking (before the reply starts streaming).",
         )
 
