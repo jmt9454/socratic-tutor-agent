@@ -121,6 +121,12 @@ def arc_planner_node(state: AgentState):
     7. URL SAFETY: Write every example URL or domain as plain text in backticks (e.g.,
        `paypa1.com`) — NEVER as a markdown link, and never with an https:// href. These
        beats will be shown to students; lookalike domains must never be clickable.
+    8. GRADING KEY: End every beat with "(Cleared by: <what an acceptable student answer
+       contains>)". Be realistic about what the student can know at that point in the arc:
+       for a set-up beat presenting an artifact DESIGNED to look identical, the honest
+       expected answer IS "they look the same" — write exactly that as the criterion.
+       The evaluator uses this key to judge the student's answer, so a wrong key means
+       unfair grading.
 
     Overall Goal: {overall_goal}
     Current Topic: {current_topic}
@@ -240,6 +246,7 @@ def inquisitor_node(state: AgentState):
     Task: Formulate your response to execute the exact strategy described in your Internal Monologue.
     - If your Internal Monologue instructs you to answer a student question, answer it fully and plainly FIRST, before anything else. Never skip or defer their question.
     - Execute the Current Teaching Beat: present what it says to present, and ask the question it says to ask, woven naturally into your reply. Do not skip ahead to future beats or reveal what the beat is building toward.
+    - Any "(Cleared by: ...)" note inside a beat is grading information for the system — NEVER say it, quote it, or hint at what answer would satisfy it.
     - If the Current Teaching Beat asks only for an observation, comparison, or prediction: present the artifact and ask — deliver NO explanation, and do NOT reveal or hint at the difference, trick, or answer the beat is designed to elicit. Giving away what the student is supposed to discover is a failure.
     - Never ask the student to produce, guess, or recall a formal term they have not been taught (e.g., "what would you call this?"). Ask only for an explanation in their own words; once they explain it, YOU supply the formal term as the payoff.
     - If the student has ALREADY answered the Current Teaching Beat's question earlier in the conversation, do NOT re-ask it verbatim. Acknowledge their earlier point ("you actually touched on this when you said...") and ask a follow-up that goes one level deeper instead.
@@ -341,6 +348,10 @@ def evaluator_node(state):
 
     **THE CURRENT TEACHING BEAT (if present, this is your judging target — NOT the whole outcome):**
     {f'"{current_beat}" — ADVANCE means the student cleared THIS beat alone (e.g., made the requested observation correctly). Do not require mastery of the full outcome; later beats handle the rest. Your philosophy rules (gist, Echo Guard, question capture) apply at the beat level.' if current_beat else "(none — judge the student's answer against the FIRST outcome directly)"}
+
+    **The Beat's Grading Key:** If the Current Teaching Beat contains a "(Cleared by: ...)" note, judge the student's answer against THAT criterion — it defines success for this beat, and it outranks your own reading of the outcome.
+
+    **Set-Up Beats:** Some beats deliberately present an artifact DESIGNED to look identical or innocuous and ask what the student notices. The honest expected answer — "they look the same" — CLEARS such a beat: experiencing the illusion is the beat's entire purpose. ADVANCE and let the next beat reveal the twist. NEVER grade a student as failing for not knowing something the arc has not taught them yet.
 
     **Final-Beat Strictness (overrides the leniency rules above):** If the Current Teaching Beat asks the student to define or explain the concept in their own words (including using its just-revealed name), ADVANCE requires the answer to actually CONTAIN that definition — the mechanism, stated by the student. A defensive takeaway ("so I should check links carefully?"), a bare question, or simple agreement is NOT a definition — REMEDIATE and re-ask for the explanation.
 
