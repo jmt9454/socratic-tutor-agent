@@ -11,6 +11,7 @@ import io
 import sys
 import time
 import uuid
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeout
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -97,13 +98,28 @@ def run_persona(name, script, out):
     config = {"configurable": {"thread_id": str(uuid.uuid4())}}
     t0 = time.time()
 
-    def invoke(payload):
-        # Capture the nodes' print() diagnostics into the transcript too.
+    def invoke(payload, turn_timeout=240):
+        # Capture the nodes' print() diagnostics into the transcript, time the
+        # turn, and guard it with a watchdog: a stalled call skips this persona
+        # with a diagnosis instead of hanging the whole run.
         buf = io.StringIO()
-        with contextlib.redirect_stdout(buf):
-            result = app.invoke(payload, config=config)
+        t_start = time.time()
+        pool = ThreadPoolExecutor(max_workers=1)
+        result = None
+        try:
+            with contextlib.redirect_stdout(buf):
+                future = pool.submit(app.invoke, payload, config=config)
+                result = future.result(timeout=turn_timeout)
+        except FuturesTimeout:
+            pass
+        finally:
+            pool.shutdown(wait=False, cancel_futures=True)
         for line in buf.getvalue().splitlines():
             w(f"    | {line}")
+        w(f"    | (turn took {time.time() - t_start:.1f}s)")
+        if result is None:
+            w(f"### TURN WATCHDOG FIRED after {turn_timeout}s — abandoning this persona")
+            raise TimeoutError(f"turn exceeded {turn_timeout}s")
         return result
 
     r = invoke({"overall_goal": overall_goal, "learning_outcomes": learning_outcomes})

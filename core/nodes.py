@@ -6,7 +6,7 @@ from langchain_core.messages import SystemMessage, AIMessage, HumanMessage
 from models import Evaluation, ArcPlan
 from state import AgentState
 
-model = ChatOpenAI(model="gpt-5-mini", max_retries=2)
+model = ChatOpenAI(model="gpt-5-mini", max_retries=2, timeout=60)
 
 _QUOTE = "['\"‘’“”]?"
 
@@ -148,7 +148,7 @@ def arc_planner_node(state: AgentState):
     The conversation so far follows. Output 2-4 beats.
     """
 
-    arc_model = ChatOpenAI(model="gpt-5-mini", reasoning_effort='low', max_retries=2).with_structured_output(ArcPlan)
+    arc_model = ChatOpenAI(model="gpt-5-mini", reasoning_effort='low', max_retries=2, timeout=90).with_structured_output(ArcPlan)
     model_messages = [SystemMessage(content=prompt)]
     model_messages.extend(messages)
 
@@ -183,7 +183,7 @@ def arc_planner_node(state: AgentState):
     return {"current_arc": beats, "arc_outcome": target_outcome, "arc_term": formal_term}
 
 def inquisitor_node(state: AgentState):
-    inquisitor_model = ChatOpenAI(model="gpt-4.1-mini", temperature=0.2, max_retries=2)
+    inquisitor_model = ChatOpenAI(model="gpt-4.1-mini", temperature=0.2, max_retries=2, timeout=60)
     messages = state.get("messages", [])
     # internal_monologue accumulates every evaluator justification; only the
     # LATEST entry is the current strategy — older ones are stale directives.
@@ -276,7 +276,16 @@ def inquisitor_node(state: AgentState):
     model_messages.extend(messages)  # The conversation history
     model_messages.append(SystemMessage(content=anchor_prompt)) # The anchor forces the LLM to prioritize the monologue
 
-    response = inquisitor_model.invoke(model_messages)
+    try:
+        response = inquisitor_model.invoke(model_messages)
+    except Exception as e:
+        # Never leave the student hanging: state is checkpointed, so a failed
+        # turn loses nothing — they resend and the lesson continues.
+        print(f"Inquisitor Node: API FAILURE ({e}); returning recovery message.")
+        response = AIMessage(content=(
+            "Sorry — I hit a technical hiccup on my end just now. "
+            "Please send your last answer again and we'll pick up right where we left off."
+        ))
     return {"messages": [response]}
 
 def evaluator_node(state):
@@ -284,7 +293,7 @@ def evaluator_node(state):
     An evaluator node that judges conversational understanding and dictates the tutor's next move.
     """
     print("Evaluator node invoked.")
-    evaluator_model = ChatOpenAI(model="gpt-5-mini", reasoning_effort='low', max_retries=2).with_structured_output(Evaluation)
+    evaluator_model = ChatOpenAI(model="gpt-5-mini", reasoning_effort='low', max_retries=2, timeout=60).with_structured_output(Evaluation)
     
     messages = state.get("messages", [])
     if not isinstance(messages, list):
@@ -391,7 +400,20 @@ def evaluator_node(state):
     model_messages = [SystemMessage(content=prompt)]
     model_messages.extend(messages)
 
-    response = evaluator_model.invoke(model_messages)
+    try:
+        response = evaluator_model.invoke(model_messages)
+    except Exception as e:
+        # Safe fallback: leave all progress state untouched, and have the tutor
+        # gently re-ask. The student loses one exchange, never their session.
+        print(f"Evaluator Node: API FAILURE ({e}); using safe fallback (no state change).")
+        return {
+            "internal_monologue": [
+                "A technical hiccup interrupted this evaluation. Briefly and warmly apologize "
+                "for the delay, then re-ask your previous question exactly as before. "
+                f'[THE STUDENT\'S EXACT WORDS THIS TURN WERE: "{last_human.content}" '
+                f"— attribute nothing to the student beyond this.]"
+            ],
+        }
 
     # The model only decides; Python owns list membership.
     # With an arc: ADVANCE pops beats_cleared beats (capped so the reveal beat can
