@@ -61,8 +61,8 @@ async def lifespan(app: FastAPI):
 overall_goal = "Recognizing Phishing and Deceptive Email Tactics"
 learning_outcomes = {
     "1. Spotting Deceptive Links": [
-        "1. Know that attackers use lookalike characters from other alphabets to disguise URLs — a 'homograph' attack.",
-        "2. Recognize misspelled domains ('typosquatting') and shortened links as common URL disguise tricks.",
+        "1. Know that attackers use lookalike characters from other alphabets to disguise URLs presented to a user — a 'homograph' attack.",
+        "2. Recognize how users can misspell domains and arrive at a different site('typosquatting') and how shortened links can disguise malicious sites.",
         "3. Understand that attackers can bounce links through trusted sites via redirects ('open redirect' vulnerabilities).",
         "4. Always check a link's true destination (e.g., by hovering) before clicking — the displayed text and the actual address can differ."
     ],

@@ -25,3 +25,7 @@ class AgentState(TypedDict):
     remaining_topics: Optional[list[str]]
     completed_topics: Optional[Annotated[list[str], add_string_list]]
     remaining_learning_outcomes: Optional[list[str]]
+    current_arc: Optional[list[str]]   # remaining teaching beats for the current target outcome
+    arc_outcome: Optional[str]         # the outcome the current arc was generated for
+    arc_term: Optional[str]            # the formal term revealed in the arc's final beat ("" if none)
+    remediation_count: Optional[int]   # consecutive failed remediations on the current beat (frustration cap)
