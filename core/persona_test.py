@@ -23,10 +23,15 @@ from graph import create_graph
 overall_goal = "Recognizing Phishing and Deceptive Email Tactics"
 learning_outcomes = {
     "1. Spotting Deceptive Links": [
-        "1. Know that attackers use lookalike characters from other alphabets to disguise URLs presented to a user — a 'homograph' attack.",
-        "2. Recognize how users can misspell domains and arrive at a different site ('typosquatting').",
-        "3. Understand that attackers can bounce links through trusted sites via redirects ('open redirect' vulnerabilities).",
-        "4. Always check a link's true destination (e.g., by hovering) before clicking — the displayed text and the actual address can differ.",
+        "1. What a 'homograph' attack is — and how a URL can look exactly right yet lead somewhere else entirely.",
+        "2. What 'typosquatting' is, and why one wrong letter can land you on an attacker's site.",
+        "3. What shortened links (`bit.ly/...`) change about what you can tell from a URL.",
+        "4. What an 'open redirect' vulnerability is, and why a link starting at a trusted site isn't automatically safe.",
+        "5. How to check where a link really goes before clicking — and why the visible link text isn't enough.",
+    ],
+    "2. Phishing Variants and Social Engineering": [
+        "1. The difference between mass phishing, 'spear phishing', and 'whaling' — and who each one targets.",
+        "2. The difference between 'smishing' and 'vishing' — and the channel each one uses to reach you.",
     ],
 }
 
@@ -60,6 +65,22 @@ PERSONAS = {
         "whats your favorite movie",
         "ok ok. the second one has weird letters that only look like the real ones",
         "can we be done soon",
+    ],
+    # Designed to bait the two known failure modes:
+    #  - thin/vague answers that invite fabricated praise ("you noticed X...")
+    #  - explicit partial disclaimers that must force targeted REMEDIATE, not ADVANCE
+    #  - an explicit request to move on (MOVE_ON / concede path)
+    "BAIT": [
+        "they look the same",
+        "yeah the letters thing",
+        "hmm the fake letters fool people I guess, but I honestly don't get how it ends up being a different website",
+        "ugh can you just tell me the answer",
+        "ok so the computer reads the weird letter as different so it's a different address",
+        "the 1 and the l",
+        "it's like the same trick as before? someone owns the misspelled one to catch people",
+        "typosquatting is registering a misspelled domain to catch people who mistype",
+        "you can't tell where a short link goes",
+        "it hides the destination so you can't judge it before clicking",
     ],
 }
 
@@ -99,7 +120,7 @@ def run_persona(name, script, out):
 
 if __name__ == "__main__":
     with open("persona_results.txt", "w", encoding="utf-8") as out:
-        for pname in ["KNOWLEDGEABLE", "DOUBTFUL", "OFF_TOPIC"]:
+        for pname in ["KNOWLEDGEABLE", "DOUBTFUL", "OFF_TOPIC", "BAIT"]:
             try:
                 run_persona(pname, PERSONAS[pname], out)
             except Exception as e:
