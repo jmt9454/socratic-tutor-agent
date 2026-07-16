@@ -6,7 +6,7 @@ from langchain_core.messages import SystemMessage, AIMessage, HumanMessage
 from models import Evaluation, ArcPlan
 from state import AgentState
 
-model = ChatOpenAI(model="gpt-5-mini")
+model = ChatOpenAI(model="gpt-5-mini", max_retries=2)
 
 _QUOTE = "['\"‘’“”]?"
 
@@ -148,7 +148,7 @@ def arc_planner_node(state: AgentState):
     The conversation so far follows. Output 2-4 beats.
     """
 
-    arc_model = ChatOpenAI(model="gpt-5-mini", reasoning_effort='low').with_structured_output(ArcPlan)
+    arc_model = ChatOpenAI(model="gpt-5-mini", reasoning_effort='low', max_retries=2).with_structured_output(ArcPlan)
     model_messages = [SystemMessage(content=prompt)]
     model_messages.extend(messages)
 
@@ -183,7 +183,7 @@ def arc_planner_node(state: AgentState):
     return {"current_arc": beats, "arc_outcome": target_outcome, "arc_term": formal_term}
 
 def inquisitor_node(state: AgentState):
-    inquisitor_model = ChatOpenAI(model="gpt-4.1-mini", temperature=0.2)
+    inquisitor_model = ChatOpenAI(model="gpt-4.1-mini", temperature=0.2, max_retries=2)
     messages = state.get("messages", [])
     # internal_monologue accumulates every evaluator justification; only the
     # LATEST entry is the current strategy — older ones are stale directives.
@@ -284,7 +284,7 @@ def evaluator_node(state):
     An evaluator node that judges conversational understanding and dictates the tutor's next move.
     """
     print("Evaluator node invoked.")
-    evaluator_model = ChatOpenAI(model="gpt-5-mini", reasoning_effort='low').with_structured_output(Evaluation)
+    evaluator_model = ChatOpenAI(model="gpt-5-mini", reasoning_effort='low', max_retries=2).with_structured_output(Evaluation)
     
     messages = state.get("messages", [])
     if not isinstance(messages, list):
