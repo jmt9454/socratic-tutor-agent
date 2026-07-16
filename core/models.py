@@ -33,7 +33,8 @@ class ArcPlan(BaseModel):
     )
     formal_term: str = Field(
         default="",
-        description="The formal name of the concept this outcome teaches, extracted from the "
-                    "outcome text (e.g., 'homograph attack', 'typosquatting', 'open redirect'). "
-                    "Empty string if the outcome teaches a habit or fact with no formal term."
+        description="The formal name of the concept, ONLY if this outcome teaches exactly one "
+                    "genuine term of art (e.g., 'homograph attack', 'typosquatting', 'open "
+                    "redirect'). Empty string if the outcome compares multiple named concepts, "
+                    "teaches a habit, or has no established name — NEVER invent a label."
     )

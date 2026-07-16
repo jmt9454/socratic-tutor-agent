@@ -101,8 +101,16 @@ def arc_planner_node(state: AgentState):
        idea in their own words — NEVER to produce, guess, or recall the formal term, which
        they have not been taught and cannot know. Never write beats like "what would you
        call this trick?". Do NOT put the term reveal inside any beat — it is handled in a
-       separate follow-up turn automatically. Simply report the concept's formal name in
-       the `formal_term` field (empty if the outcome has no formal term).
+       separate follow-up turn automatically. Report the concept's formal name in the
+       `formal_term` field ONLY if the outcome teaches exactly ONE genuine term of art
+       (e.g., 'typosquatting', 'open redirect'). If the outcome compares several named
+       concepts, teaches a habit, or has no established name, leave `formal_term` EMPTY —
+       never invent a label (not 'phishing variants', not 'URL shortening', not
+       'smishing and vishing').
+       For outcomes covering MULTIPLE named concepts (e.g., spear phishing vs. whaling),
+       teach each name within its own beat as it comes up, and make your final beat an
+       APPLICATION CHECK: present two or three one-line scenarios and ask the student to
+       label which concept each one is.
     4. BUILD ON THE CONVERSATION: Review the chat history below. If the student previously
        offered examples, analogies, or insights (e.g., a domain they suggested, a scenario
        they described), reuse them in your beats to tie concepts together. Connect this
@@ -249,7 +257,9 @@ def inquisitor_node(state: AgentState):
     - Any "(Cleared by: ...)" note inside a beat is grading information for the system — NEVER say it, quote it, or hint at what answer would satisfy it.
     - If the Current Teaching Beat asks only for an observation, comparison, or prediction: present the artifact and ask — deliver NO explanation, and do NOT reveal or hint at the difference, trick, or answer the beat is designed to elicit. Giving away what the student is supposed to discover is a failure.
     - Never ask the student to produce, guess, or recall a formal term they have not been taught (e.g., "what would you call this?"). Ask only for an explanation in their own words; once they explain it, YOU supply the formal term as the payoff.
-    - If the student has ALREADY answered the Current Teaching Beat's question earlier in the conversation, do NOT re-ask it verbatim. Acknowledge their earlier point ("you actually touched on this when you said...") and ask a follow-up that goes one level deeper instead.
+    - When remediating a wrong or missing answer: NEVER state the missing fact outright — that ends the discovery. Descend ONE rung of the hint ladder instead: (1) a narrower question about just the missing piece; if that fails, (2) an analogy scaffold — preferably one the STUDENT introduced (e.g., if they compared phishing to casting nets and spears, ask what a *whale* would be); if that fails, (3) an either/or choice question. Giving the answer away is permitted ONLY when your Internal Monologue explicitly instructs it (the system's concession).
+    - If the student has ALREADY answered the Current Teaching Beat's question earlier in the conversation, do NOT re-ask it verbatim. Acknowledge their earlier point by QUOTING their actual words, and ask a follow-up that goes one level deeper instead.
+    - NEVER attribute to the student anything they did not literally say. Your Internal Monologue contains THE STUDENT'S EXACT WORDS — any "you noticed/said/pointed out X" in your reply must match those words. Saying the student observed something they never typed is fabrication and strictly forbidden; if their answer didn't address something, do not pretend it did.
     - Ground your explanation in the Target Outcome above.
     - Deliver the necessary micro-step of information.
     - If the Target Outcome enumerates multiple items (types, channels, tactics), introduce ONLY ONE item this turn and question on it. Let subsequent turns cover the rest as the conversation progresses. Never enumerate the full list in a single message.
@@ -310,9 +320,10 @@ def evaluator_node(state):
     3. **The Anti-Trapping Rule:** Do not trap the student in an endless loop on a single concept. If they grasp the core mechanism of the concept, move them forward immediately.
     4. **Strict Scope Isolation:** Look ONLY at the FIRST outcome. If the outcome is just about understanding *what* something is, and they demonstrate that, pass them. Do not hold them back because they didn't explain *how to defend against it* (defense is likely a later outcome). For enumerated outcomes (e.g., "email vs. SMS vs. voice"), the student must show they can DISTINGUISH the items — grasping only one item is progress, not completion.
     5. **The Echo Guard:** Brief answers are fine, but the answer must CONTAIN something — at least one concrete element of the outcome's core mechanism, in the student's own words. An answer that merely restates the tutor's phrasing, repeats the question's premise, or affirms without content (e.g., "because I can see it", "because they don't know") is NOT evidence. REMEDIATE with a narrower question that asks for the missing piece.
+    6. **The Explicit Disclaimer Rule (overrides ALL leniency above):** If the student explicitly says they don't know or don't understand PART of the current target (e.g., "...and whaling I don't know"), you MUST NOT ADVANCE, no matter how strong the rest of the answer is. REMEDIATE — and in your monologue, name exactly which parts the student HAS established (so the tutor does not re-teach them) and which single piece is missing (so the tutor targets only that).
 
     **Your Task:**
-    Evaluate ONLY the student's latest answer, quoted below. The conversation history is provided for context only. IMPORTANT: assistant messages in the history are the TUTOR speaking, NOT the student — never credit the student with anything the tutor said. Focus ONLY on the FIRST item in the Remaining Learning Outcomes list. Decide how the Socratic Guide should respond based on two scenarios:
+    Evaluate ONLY the student's latest answer, quoted below. The conversation history is provided for context only. IMPORTANT: assistant messages in the history are the TUTOR speaking, NOT the student — never credit the student with anything the tutor said. This INCLUDES tutor claims like "you noticed X" or "as you said": verify such claims against the student's actual messages, and if the student never typed it, it is NOT student evidence. Focus ONLY on the FIRST item in the Remaining Learning Outcomes list. Decide how the Socratic Guide should respond based on two scenarios:
 
     **Scenario A: The Gist is Grasped (Move Forward) - DEFAULT TO THIS IF IN DOUBT**
     - Trigger: The student's answer shows they understand the core directional idea of that FIRST outcome, even if brief or unsure.
@@ -449,6 +460,13 @@ def evaluator_node(state):
             f'FIRST: directly and plainly answer the student\'s question: '
             f'"{student_question}". THEN: {justification}'
         )
+
+    # Ground truth for the tutor: the student's literal words. Acknowledgments must
+    # anchor to these — this is what makes fabricated attribution detectable and bannable.
+    justification = (
+        f'{justification} [THE STUDENT\'S EXACT WORDS THIS TURN WERE: "{last_human.content}" '
+        f'— attribute nothing to the student beyond this.]'
+    )
 
     print(f"Evaluator Node: Decision - {response.decision}")
     if concede:
