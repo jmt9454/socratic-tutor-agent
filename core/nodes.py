@@ -6,7 +6,7 @@ from langchain_core.messages import SystemMessage, AIMessage, HumanMessage
 from models import Evaluation, ArcPlan
 from state import AgentState
 
-model = ChatOpenAI(model="gpt-4.1-mini")
+model = ChatOpenAI(model="gpt-5-mini")
 
 _QUOTE = "['\"‘’“”]?"
 
@@ -148,7 +148,7 @@ def arc_planner_node(state: AgentState):
     The conversation so far follows. Output 2-4 beats.
     """
 
-    arc_model = ChatOpenAI(model="gpt-4.1-mini", temperature=0).with_structured_output(ArcPlan)
+    arc_model = ChatOpenAI(model="gpt-5-mini", reasoning_effort='low').with_structured_output(ArcPlan)
     model_messages = [SystemMessage(content=prompt)]
     model_messages.extend(messages)
 
@@ -165,10 +165,16 @@ def arc_planner_node(state: AgentState):
     # skipped when the evaluator advances past the student's explanation.
     if beats and formal_term:
         beats.append(
-            f"Congratulate the student: what they just described is exactly what security "
-            f"experts call a '{formal_term}' — reveal that term now as the payoff for their "
-            f"explanation. Then ask ONE summary question: now that they know the name, ask "
-            f"them to tell you what a '{formal_term}' is in their own words."
+            f"Reveal the name: tell the student that the concept this lesson has been "
+            f"exploring — \"{target_outcome}\" — is what security experts call a "
+            f"'{formal_term}'. Anchor the term to THE CONCEPT ITSELF; do NOT claim the "
+            f"student's last message described it (their last message may have been about "
+            f"something else entirely). If they explained the concept well earlier, "
+            f"congratulate them for having discovered it themselves. Then ask ONE summary "
+            f"question: now that they know the name, ask them to explain what a "
+            f"'{formal_term}' is in their own words. (Cleared by: a definition containing "
+            f"the concept's core mechanism in the student's own words — not a defense tip, "
+            f"a question, or agreement)"
         )
 
     for i, beat in enumerate(beats, 1):
@@ -278,7 +284,7 @@ def evaluator_node(state):
     An evaluator node that judges conversational understanding and dictates the tutor's next move.
     """
     print("Evaluator node invoked.")
-    evaluator_model = ChatOpenAI(model="gpt-4.1-mini", temperature=0.1).with_structured_output(Evaluation)
+    evaluator_model = ChatOpenAI(model="gpt-5-mini", reasoning_effort='low').with_structured_output(Evaluation)
     
     messages = state.get("messages", [])
     if not isinstance(messages, list):
@@ -369,8 +375,7 @@ def evaluator_node(state):
     **UPCOMING BEATS in this arc (for `beats_cleared` assessment only):**
     {upcoming_eval_block}
 
-    **Multi-Beat Clearing (`beats_cleared`, only when you ADVANCE):** Check the upcoming beats above. If the student's OWN words — in this answer or earlier in the conversation — have ALREADY fully provided what an upcoming beat is designed to elicit, count it: beats_cleared = 1 means just the current beat, 2 means current plus the next, and so on, counting consecutively from the current beat. STRICT: something the TUTOR said never counts as student evidence; a partial or implied answer never counts.
-    POSITIVE EXAMPLE — do NOT hoard beats: if the current beat asks for an observation and the student's answer makes the observation AND explains the mechanism AND gives the attacker's motive that the next two beats were going to elicit, output 3, not 1. Rich, detailed answers SHOULD clear multiple beats; withholding credit forces a knowledgeable student to repeat themselves, which is a failure of your role. Reserve beats_cleared = 1 for answers that genuinely address only the current beat.
+    **Upcoming-Beat Check (`satisfied_upcoming`, only when you ADVANCE):** Go through each numbered upcoming beat above (+1, +2, ...) ONE BY ONE. For each, ask: have the student's OWN words — in this answer or earlier — already fully provided what that beat's question is designed to elicit? List the number of every beat where the answer is yes (e.g., [1] or [1, 2]). Do NOT list a beat for partial or implied coverage, and never because the TUTOR said it. An empty list is common — but when a student gives one rich answer covering several beats (the observation AND the mechanism AND the motive), you MUST list those beats: withholding them forces the student to repeat themselves, which is a failure of your role.
 
     **THE TUTOR'S MOST RECENT MESSAGE (what the student was responding to):**
     "{tutor_question}"
@@ -380,7 +385,7 @@ def evaluator_node(state):
 
     NOTE: If the tutor's question drifted away from the FIRST outcome (e.g., asked about prevention when the outcome is a definition), judge the student's answer against the FIRST outcome itself, not against the drifted question. A reasonable answer to the question actually asked is NOT automatic evidence the outcome is met.
 
-    Output your `decision` (ADVANCE, REMEDIATE, NO_ATTEMPT, or MOVE_ON), your strategic advice in the `justification` (which becomes the internal monologue), and any `student_question` (empty string if none).
+    Output your `decision` (ADVANCE, REMEDIATE, NO_ATTEMPT, or MOVE_ON), your strategic advice in the `justification` (which becomes the internal monologue), any `student_question` (empty string if none), and `satisfied_upcoming` (empty list if none).
     """
 
     model_messages = [SystemMessage(content=prompt)]
@@ -414,10 +419,16 @@ def evaluator_node(state):
     if response.decision == "ADVANCE" or concede:
         if current_arc:
             if response.decision == "ADVANCE":
+                # The model enumerates satisfied upcoming beats; Python counts the
+                # consecutive prefix (+1, +2, ...) — gaps don't skip.
                 try:
-                    cleared = max(1, int(getattr(response, "beats_cleared", 1) or 1))
+                    satisfied = {int(x) for x in (getattr(response, "satisfied_upcoming", None) or [])}
                 except (TypeError, ValueError):
-                    cleared = 1
+                    satisfied = set()
+                extra = 0
+                while (extra + 1) in satisfied:
+                    extra += 1
+                cleared = 1 + extra
             else:
                 cleared = 1  # concessions advance exactly one step
             has_reveal = bool((state.get("arc_term") or "").strip())

@@ -14,13 +14,14 @@ class Evaluation(BaseModel):
         description="If the student's latest message contains an explicit question or request "
                     "for clarification, restate it here concisely. Otherwise, empty string."
 )
-    beats_cleared: int = Field(
-        default=1,
-        description="Only meaningful when decision is ADVANCE and a teaching arc is active. "
-                    "How many consecutive beats, starting from the current one, are ALREADY "
-                    "fully satisfied (1 = just the current beat). Count an upcoming beat ONLY "
-                    "if the student's OWN words have explicitly provided what that beat is "
-                    "designed to elicit — tutor statements never count. Default to 1 when unsure."
+    satisfied_upcoming: list[int] = Field(
+        default_factory=list,
+        description="Only meaningful when decision is ADVANCE and UPCOMING BEATS are listed "
+                    "in the prompt. The numbers (+1, +2, ...) of the upcoming beats whose "
+                    "questions the student's OWN words have ALREADY fully answered — in this "
+                    "answer or earlier in the conversation. Include a beat number ONLY if the "
+                    "student themselves explicitly provided what that beat is designed to "
+                    "elicit; tutor statements and partial coverage never count. Often empty."
     )
 
 class ArcPlan(BaseModel):

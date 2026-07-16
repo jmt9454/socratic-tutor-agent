@@ -1,10 +1,12 @@
 """
 title: LG Tutor (Socratic Guide)
 author: J
-version: 0.1.0
+version: 0.2.0
 description: Bridges OpenWebUI to the LangGraph tutor FastAPI backend.
              Maps OpenWebUI's chat_id -> the graph's thread_id so each
              OpenWebUI conversation is its own persistent tutoring session.
+             Streams the tutor's reply token-by-token and shows a status
+             indicator while the evaluator/arc-planner phase runs.
 
 INSTALL: OpenWebUI -> Admin Panel -> Functions -> (+) -> paste this file ->
          Save -> enable the toggle. Then set the Valves (gear icon) if your
@@ -17,7 +19,7 @@ NOTE: This file is the source of truth; the copy inside OpenWebUI's database
 
 import hashlib
 
-import requests
+import aiohttp
 from pydantic import BaseModel, Field
 
 
@@ -37,6 +39,10 @@ class Pipe:
         REQUEST_TIMEOUT: int = Field(
             default=120,
             description="Seconds to wait for the tutor backend.",
+        )
+        STATUS_MESSAGE: str = Field(
+            default="Reading your answer…",
+            description="Status text shown while the tutor is thinking (before the reply starts streaming).",
         )
 
     def __init__(self):
@@ -62,18 +68,29 @@ class Pipe:
         user_id = (__user__ or {}).get("id", "anon")
         return f"{user_id}:{chat_id}"
 
-    def pipe(
+    async def _emit_status(self, emitter, description: str, done: bool, hidden: bool = False):
+        if emitter:
+            await emitter(
+                {
+                    "type": "status",
+                    "data": {"description": description, "done": done, "hidden": hidden},
+                }
+            )
+
+    async def pipe(
         self,
         body: dict,
         __metadata__: dict = None,
         __user__: dict = None,
         __task__: str = None,
+        __event_emitter__=None,
     ):
         # OpenWebUI routes background jobs (title generation, tags, etc.) to
         # the chat's model. Short-circuit them so they NEVER hit the graph and
         # advance the student's tutoring state.
         if __task__:
-            return "Socratic Tutoring Session"
+            yield "Socratic Tutoring Session"
+            return
 
         # The graph is stateful (checkpointer); it only needs the newest
         # student message, not OpenWebUI's full replayed history.
@@ -96,21 +113,41 @@ class Pipe:
         if self.valves.API_KEY:
             headers["X-API-Key"] = self.valves.API_KEY
 
+        # Fill the evaluator/arc-planner dead air with a visible status.
+        await self._emit_status(__event_emitter__, self.valves.STATUS_MESSAGE, done=False)
+
+        url = f"{self.valves.API_BASE_URL.rstrip('/')}/chat"
+        timeout = aiohttp.ClientTimeout(total=self.valves.REQUEST_TIMEOUT)
+        first_chunk = True
+
         try:
-            response = requests.post(
-                f"{self.valves.API_BASE_URL.rstrip('/')}/chat",
-                json=payload,
-                headers=headers,
-                stream=True,
-                timeout=self.valves.REQUEST_TIMEOUT,
-            )
-            response.raise_for_status()
-        except requests.RequestException as e:
-            return f"⚠️ Could not reach the tutor backend: {e}"
+            async with aiohttp.ClientSession(timeout=timeout) as session:
+                async with session.post(url, json=payload, headers=headers) as response:
+                    if response.status != 200:
+                        detail = (await response.text())[:300]
+                        await self._emit_status(__event_emitter__, "", done=True, hidden=True)
+                        yield f"⚠️ Tutor backend returned {response.status}: {detail}"
+                        return
 
-        def stream():
-            for chunk in response.iter_content(chunk_size=None, decode_unicode=True):
-                if chunk:
-                    yield chunk
+                    async for chunk in response.content.iter_any():
+                        text = chunk.decode("utf-8", errors="ignore")
+                        if not text:
+                            continue
+                        if first_chunk:
+                            # First token has arrived — clear the status line.
+                            await self._emit_status(__event_emitter__, "", done=True, hidden=True)
+                            first_chunk = False
+                        yield text
+        except aiohttp.ClientError as e:
+            await self._emit_status(__event_emitter__, "", done=True, hidden=True)
+            yield f"⚠️ Could not reach the tutor backend: {e}"
+            return
+        except Exception as e:  # timeout & anything else — never leave status stuck
+            await self._emit_status(__event_emitter__, "", done=True, hidden=True)
+            yield f"⚠️ Tutor request failed: {e}"
+            return
 
-        return stream()
+        # Safety: if the stream ended without a single chunk, clear the status.
+        if first_chunk:
+            await self._emit_status(__event_emitter__, "", done=True, hidden=True)
+            yield "⚠️ The tutor sent an empty reply. Please try again."
