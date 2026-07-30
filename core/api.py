@@ -61,24 +61,24 @@ async def lifespan(app: FastAPI):
 overall_goal = "Recognizing Phishing and Deceptive Email Tactics"
 learning_outcomes = {
     "1. Spotting Deceptive Links": [
-        "1. How lookalike URLs deceive: 'homograph' attacks use foreign characters that look identical, while 'typosquatting' registers plain misspellings — and how the two tricks differ.",
-        "2. How links hide their true destination: shortened links (`bit.ly/...`) show you nothing, and an 'open redirect' can start at a trusted site yet bounce you somewhere malicious.",
-        "3. Why a link's visible text proves nothing about where it goes — and how to reveal the true destination (e.g., by hovering) before clicking."
+        "1. Typosquatting",
+        "2. Homograph attacks",
+        "3. URL Shorteners",
+        "4. Methods of double-checking links"
+        "5. Open Redirects",
     ],
     "2. Phishing Variants and Social Engineering": [
-        "1. Who phishing targets: mass email blasts vs. 'spear phishing' aimed at specific individuals vs. 'whaling' aimed at executives.",
-        "2. How phishing reaches you beyond email — 'smishing' (SMS) and 'vishing' (voice calls) — and how 'pretexting' (a fabricated role like IT support) plus pressure tactics (urgency, authority, fear) make these work."
+        "1. Phishing",
+        "2. Spear Phishing",
+        "3. Whaling",
+        "4. Smishing",
+        "3. Pretexting",
+        "4. Tactics for social engineering (fear, urgency, etc.)",
     ],
-    "3. Email Authentication (SPF / DKIM / DMARC)": [
-        "1. What an 'SPF' record does vs. what 'DKIM' adds — who may send for a domain vs. proof the message wasn't forged — and how SPF's job differs from an MX record's.",
-        "2. What 'DMARC' does when SPF or DKIM fail — and where all three records actually live."
-    ],
-    "4. Reading Sender Information": [
-        "1. Why the visible 'From' address is the easiest thing to fake, how hidden fields like 'Return-Path' (where bounce messages go) can differ from it — and what a mismatch tells you."
-    ],
-    "5. Dangerous Attachments": [
-        "1. How 'double extensions' (e.g., `photo.jpg.exe`) disguise executables, the OS behavior that hides the trick — and why a familiar file type or small size never means safe."
-    ]
+    "3_Dangerous_Attachments": [
+            "1. Double extensions",
+            "2. Malicious Macros"
+        ]
 }
 
 # --- 4. Models ---
